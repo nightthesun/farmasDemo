@@ -62,6 +62,15 @@
                     </table>
                     <nav>
                         <ul class="pagination">
+                            <li class="page-item">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -71,8 +80,12 @@
         <!--Inicio del modal agregar/actualizar-->
         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false">
             <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-header">
+                <div class="modal-content">
+                    <div class="modal-header">
                     <h4 class="modal-title">{{ tituloModal }}</h4>
+                    <button  type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
+                        <span aria-hidden="true">x</span>
+                    </button>
                     
                 </div>
                 <div class="modal-body">
@@ -81,15 +94,69 @@
                     </div>
                     <form action="" class="form-horizontal">
                         <!-- insertar datos -->
+                        <div class="container">
+                         
+                                    <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">
+                                    Producto
+                                    <span   class="error">(*)</span>
+                                </label>
+                                <div class="col-md-9">
+                                    <select name="" id=""  class="form-control">
+                                        <option value="0" selected disabled>-Seleccione un dato</option>
+                                        <option value="1" >1</option>
+                                        <option value="2" >1</option>
+                                    </select>
+                                </div>
+                            </div>
+                                   <div class="form-group row">
+                                      <label class="col-md-3 form-control-label" for="text-input">Cantidad
+                                        <span   class="error">(*)</span>
+                                      </label>
+                                        <div class="col-md-9">
+                                         <input type="text" id="cantidad" name="cantidad" class="form-control" placeholder="Datos de stock" >
+                                      </div>
+                                  </div>   
+
+                           <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">
+                                    Tipo
+                                    <span   class="error">(*)</span>
+                                </label>
+                                <div class="col-md-9">
+                                    <select name="" id=""  class="form-control">
+                                        <option value="0" disabled>-Seleccione un tipo</option>
+                                        <option value="1" >1</option>
+                                        <option value="2" >1</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                      <label class="col-md-3 form-control-label" for="text-input">Descripción
+                                        <span   class="error">(*)</span>
+                                      </label>
+                                        <div class="col-md-9">
+                                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                           
+                                      </div>
+                                  </div> 
+                            
+                        </div>
+                       
                     </form>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" >Cerrar</button>
+                    <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                    <button type="button"  class="btn btn-primary" >Guardar</button>
+                        <button type="button" class="btn btn-primary" >Actualizar</button>
+                   
                 </div>
+                </div>
+                
             </div>
         </div>
-        
+        <!--fin del modal-->
     </main>
 </template>
 
@@ -98,29 +165,47 @@
     import { error401 } from '../../errores';
      //Vue.use(VeeValidate);
      export default{
+        data(){
+            return{
+                tituloModal:''
+            }
+        },
         
        methods :{
+        cambiarPagina(page){
+                let me =this;
+                me.pagination.current_page = page;
+                me.listarAlmacenes(page);
+            },
         abrirModal(accion,data= []){
                 let me=this;
                 switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Registar Nuevo Almacen'
+                        me.tituloModal='Ajuste de negativos'
                         
                         me.classModal.openModal('registrar');
                         break;
                     }
-                    
+                    case 'actualizar':
+                        {
+                            me.classModal.openModal('registrar');
+                        }
                  
 
                 }
                 
-            }
+            },
+            cerrarModal(accion){
+                let me = this;
+                me.classModal.closeModal(accion);
+                           
+            },
 
        },
        mounted() {
         this.classModal = new _pl.Modals();
-            this.classModal.addModal('registrar');
+        this.classModal.addModal('registrar');
        }
      }
 </script>

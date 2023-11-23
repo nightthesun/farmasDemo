@@ -25,12 +25,16 @@ class AlmAjusteNegativoController extends Controller
             'pl.codigo as codigolinea',
             'pl.nombre as linea',
             'aip.cantidad as cantidad',
-            'aip.lote as lote'
+            'aip.lote as lote',
+            'aip.created_at as fechaIngreso',
+            'aip.fecha_vencimiento as fecha_vencimiento '
         )
         ->orderBy('pp.nombre','asc')
         ->get();
 
-        return ['pruebas' =>$pruebas,'productos'=>$productos];
+        $tipos = DB::table('alm__tipo')->get();
+
+        return ['pruebas' =>$pruebas,'productos'=>$productos,'tipos'=>$tipos ];
     }
 
     /**
@@ -73,7 +77,7 @@ class AlmAjusteNegativoController extends Controller
 
     public function getTipo(){
         $tipos = DB::table('alm__tipo')->get();
-         return $tipos
+         return $tipos;
     }
     /**
      * Display the specified resource.

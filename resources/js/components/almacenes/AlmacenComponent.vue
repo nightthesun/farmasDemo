@@ -47,7 +47,7 @@
                                 <th>Estante</th>
                                 <th>Lote</th>
                                 <th>Estado</th>
-                            </tr>
+              º              </tr>
                         </thead>
                         <tbody>
                             <tr v-for="almacen in arrayAlmacen" :key="almacen.id">

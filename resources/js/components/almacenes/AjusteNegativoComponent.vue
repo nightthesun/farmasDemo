@@ -27,6 +27,8 @@
                             </div>
                         </div>
                     </div>
+
+              
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -45,7 +47,7 @@
                         <tbody>
                             
                            <tr>
-                            <h4 style="text-align: center;"> Sin datos...</h4>
+                            <h4 style="text-align: center;"> Sin datos123...</h4>
                           
                             <td>1</td>
                             <td>2</td>
@@ -203,6 +205,7 @@
             },
 
        },
+       
        mounted() {
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');

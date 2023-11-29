@@ -2,7 +2,7 @@
     <main class="main">
         <!-- Breadcrumb -->
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">Home</li>
+            <li class="breadcrumb-item">Home32323</li>
             <li class="breadcrumb-item"><a href="#">Admin</a></li>
             <li class="breadcrumb-item active">Dashboard</li>
       
@@ -27,8 +27,10 @@
                             </div>
                         </div>
                     </div>
-
-              
+                    <ul> 
+                        <li>d</li>
+      <li v-for="tipo in arrayTipos" :key="tipo.id">{{ tipo.nombre }}</li>
+    </ul>
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -104,19 +106,20 @@
                                     <span   class="error">(*)</span>
                                 </label>
                                 <div class="col-md-9">
-                                    <select name="" id=""  class="form-control">
-                                        <option value="0" selected disabled>-Seleccione un dato</option>
-                                        <option value="1" >1</option>
-                                        <option value="2" >1</option>
+                                    
+                                    <select name="" id="" v-model="ProductoLineaIngresoSeleccionado" class="form-control" @change="cambioDeEstado">
+                                        <option v-bind:value="0" disabled>Seleccionar...</option>
+                                        <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id" v-bind:value="ProductoLineaIngreso.id" v-text="'cod:'+ProductoLineaIngreso.codigoProducto+' Nom:'+ProductoLineaIngreso.name +' codInTer:'+ProductoLineaIngreso.codigointernacional+' Lote:'+ProductoLineaIngreso.lote+' FIng:'+ProductoLineaIngreso.fechaIngreso+' Suc:'+ProductoLineaIngreso.nombreSucursal+' Stock:'+ProductoLineaIngreso.cantidad"></option>
                                     </select>
-                                </div>
+                                    <input type="number"  v-model="cantidadProductoLineaIngreso" >
+                                      </div>
                             </div>
                                    <div class="form-group row">
                                       <label class="col-md-3 form-control-label" for="text-input">Cantidad
                                         <span   class="error">(*)</span>
                                       </label>
                                         <div class="col-md-9">
-                                         <input type="text" id="cantidad" name="cantidad" class="form-control" placeholder="Datos de stock" >
+                                         <input type="number" id="cantidad" name="cantidad" v-model="cantidadS" class="form-control" placeholder="Datos de stock" >
                                       </div>
                                   </div>   
 
@@ -126,11 +129,11 @@
                                     <span   class="error">(*)</span>
                                 </label>
                                 <div class="col-md-9">
-                                    <select name="" id=""  class="form-control">
-                                        <option value="0" disabled>-Seleccione un tipo</option>
-                                        <option value="1" >1</option>
-                                        <option value="2" >1</option>
+                                    <select name="" id="" v-model="TiposSeleccionado" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="Tipos in arrayTipos" :key="arrayTipos.id" :value="Tipos.id" v-text="Tipos.nombre"></option>
                                     </select>
+                                    
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -169,23 +172,97 @@
      export default{
         data(){
             return{
-                tituloModal:''
+                tituloModal:'',
+                arrayTipos:[],
+                TiposSeleccionado:0,
+                arrayProductoLineaIngreso:[],
+                ProductoLineaIngresoSeleccionado:0,
+                cantidadS:'',
+                listarTipo:0,
+                cantidadProductoLineaIngreso:'',
             }
         },
-        
+      watch:{
+        ProductoLineaIngresoSeleccionado:function(newValue){
+            if (newValue > 0 ) {
+               
+                this.cantidadS=1;
+            let productoSeleccionado=this.arrayProductoLineaIngreso.find(element=>element.id === newValue);
+          if (productoSeleccionado) {
+            this.cantidadProductoLineaIngreso=productoSeleccionado.cantidad;
+            console.log(">>>>", productoSeleccionado.cantidad);
+                } else {
+    console.log("No matching element found in arrayProductoLineaIngreso.");
+        }
+            } else {
+                this.cantidadS ='';
+            }
+         
+        },
+        cantidadS: function (valor) {
+  if (valor > this.cantidadProductoLineaIngreso) {
+    this.cantidadS = 1;
+    console.log("No se puede ingresar datos mayor que el stock actual");
+  } else if (valor !== this.cantidadProductoLineaIngreso) {
+    this.cantidadS = valor;
+  }
+},
+     
+      },
        methods :{
+        
+        ajustesNegativos(){
+                let me=this;
+                var url='/ajustesNeg/listarTipo';
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;
+                    me.arrayTipos=respuesta;
+                    console.log( me.arrayTipos);
+                })
+                .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+            },
+          
+            cambiodeEstado(valor){
+                 let me=this;
+                 const productoSeleccionado = me.arrayProductoLineaIngreso.find(element => element.id == this.ProductoLineaIngresoSeleccionado);
+                console.log(">>>>>>>>"+me.productoSeleccionado);
+
+              }  ,
+          
+                
+          ProductoLineaIngreso(){
+                let me=this;
+                var url='/ajustesNeg/listarProductoLineaIngreso';
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;
+                    me.arrayProductoLineaIngreso=respuesta;
+        
+                    console.log( me.arrayProductoLineaIngreso);
+                })
+                .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+            },
         cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
                 me.listarAlmacenes(page);
             },
+
+
         abrirModal(accion,data= []){
-                let me=this;
+            let me=this;
                 switch(accion){
                     case 'registrar':
                     {
                         me.tituloModal='Ajuste de negativos'
-                        
+                        me.ProductoLineaIngreso=0;   
+                        me.TiposSeleccionado=0; 
+                        me.cambiodeEstado='';
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -205,11 +282,16 @@
             },
 
        },
-       
+  
        mounted() {
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');
+        this.ajustesNegativos();
+        this.ProductoLineaIngreso();
+        this.cambiodeEstado();
+        
        }
+
      }
 </script>
 <style scoped>

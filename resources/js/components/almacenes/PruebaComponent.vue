@@ -27,6 +27,10 @@
                             </div>
                         </div>
                     </div>
+                    <ul> 
+                        <li>d</li>
+      <li v-for="tipo in arrayTipos" :key="tipo.id">{{ tipo.nombre }}</li>
+    </ul>
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -45,7 +49,7 @@
                         <tbody>
                             
                            <tr>
-                            <h4 style="text-align: center;"> Sin datos...</h4>
+                            <h4 style="text-align: center;"> Sin datos123...</h4>
                           
                             <td>1</td>
                             <td>2</td>
@@ -167,18 +171,38 @@
      export default{
         data(){
             return{
-                tituloModal:''
+                tituloModal:'',
+                arrayTipos:[],
+              
+                listarTipo:0,
             }
         },
         
        methods :{
+        ajustesNegativos(){
+                let me=this;
+                var url='/ajustesNeg/listarTipo';
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;
+                    me.arrayTipos=respuesta;
+                    console.log( me.arrayTipos);
+                })
+                .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+            },
+
         cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
                 me.listarAlmacenes(page);
             },
         abrirModal(accion,data= []){
-                let me=this;
+            let me=this;
+               
+             
+
                 switch(accion){
                     case 'registrar':
                     {
@@ -203,9 +227,12 @@
             },
 
        },
+       
        mounted() {
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');
+        this.ajustesNegativos();
+        
        }
      }
 </script>

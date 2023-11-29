@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Alm_AjusteNegativo extends Model
 {
     use HasFactory;
+    //protected $fillable= ['codigo','correlativo','nonmbre','descripcion'];
 }

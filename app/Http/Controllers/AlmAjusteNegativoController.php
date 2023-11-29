@@ -30,7 +30,36 @@ class AlmAjusteNegativoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $letracodigo='ALM';
+        $maxcorrelativo = Alm_Almacen::select(DB::raw('max(correlativo) as maximo'))
+                                      ->get()->toArray();
+        $correlativo=$maxcorrelativo[0]['maximo'];
+        if(is_null($correlativo))
+            $correlativo=1;
+        else
+            $correlativo=$correlativo+1;
+
+        if($correlativo<10)
+            $codigo='00'.$correlativo;
+        else
+            if($correlativo<100)
+                $codigo='0'.$correlativo;
+                
+        
+        $codigo=$letracodigo.$codigo;
+        $ajusteNegativo=new Alm_AjusteNegativo();
+        $ajusteNegativo->id_usuario = auth()->user()->id;
+        $ajusteNegativo->usuario = auth()->user()->name;
+        $ajusteNegativo->codigo=$request->codigo;
+        $ajusteNegativo->linea=$request->liena;
+        $ajusteNegativo->producto=$request->producto;
+        $ajusteNegativo->cantidad=$request->cantidad;
+        $ajusteNegativo->tipo=$request->tipo;
+        $ajusteNegativo->descripcion=$request->descripcion;
+        $ajusteNegativo->fecha=$request->estado;
+        $ajusteNegativo->activado=$request->activado;
+        $ajusteNegativo->save();
+      
     }
 
 

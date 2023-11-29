@@ -27,10 +27,7 @@
                             </div>
                         </div>
                     </div>
-                    <ul> 
-                        <li>d</li>
-      <li v-for="tipo in arrayTipos" :key="tipo.id">{{ tipo.nombre }}</li>
-    </ul>
+          
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -99,8 +96,7 @@
                     <form action="" class="form-horizontal">
                         <!-- insertar datos -->
                         <div class="container">
-                         
-                                    <div class="form-group row">
+                            <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Producto
                                     <span   class="error">(*)</span>
@@ -111,7 +107,12 @@
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
                                         <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id" v-bind:value="ProductoLineaIngreso.id" v-text="'cod:'+ProductoLineaIngreso.codigoProducto+' Nom:'+ProductoLineaIngreso.name +' codInTer:'+ProductoLineaIngreso.codigointernacional+' Lote:'+ProductoLineaIngreso.lote+' FIng:'+ProductoLineaIngreso.fechaIngreso+' Suc:'+ProductoLineaIngreso.nombreSucursal+' Stock:'+ProductoLineaIngreso.cantidad"></option>
                                     </select>
-                                    <input type="number"  v-model="cantidadProductoLineaIngreso" >
+                                    <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
+                                    <input type="text"  v-model="codigo" hidden>
+                                    <input type="text"  v-model="linea" hidden>
+                                    <input type="text"  v-model="producto" hidden>
+                                    <input type="date"  v-model="fecha" hidden>
+                                    
                                       </div>
                             </div>
                                    <div class="form-group row">
@@ -141,7 +142,7 @@
                                         <span   class="error">(*)</span>
                                       </label>
                                         <div class="col-md-9">
-                                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                                            <textarea v-model="descripcion" class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
                            
                                       </div>
                                   </div> 
@@ -180,6 +181,15 @@
                 cantidadS:'',
                 listarTipo:0,
                 cantidadProductoLineaIngreso:'',
+                descripcion:'',
+                cantidad:'',
+                codigo:'',
+                linea:'',
+                producto:'',
+                tipo:'',
+                descripcion:'',
+                fecha:'',
+                estado:'',
             }
         },
       watch:{
@@ -190,6 +200,8 @@
             let productoSeleccionado=this.arrayProductoLineaIngreso.find(element=>element.id === newValue);
           if (productoSeleccionado) {
             this.cantidadProductoLineaIngreso=productoSeleccionado.cantidad;
+            this.codigo=productoSeleccionado.codigoProducto;
+            this.linea=productoSeleccionado.codigoProducto;
             console.log(">>>>", productoSeleccionado.cantidad);
                 } else {
     console.log("No matching element found in arrayProductoLineaIngreso.");
@@ -199,14 +211,21 @@
             }
          
         },
+        
+
         cantidadS: function (valor) {
-  if (valor > this.cantidadProductoLineaIngreso) {
-    this.cantidadS = 1;
-    console.log("No se puede ingresar datos mayor que el stock actual");
-  } else if (valor !== this.cantidadProductoLineaIngreso) {
-    this.cantidadS = valor;
-  }
-},
+            if (valor > this.cantidadProductoLineaIngreso) {
+                this.cantidadS = 1;
+                Swal.fire(
+                      'No puede ingresar un número mayor al stock actual',
+                        'Haga click en Ok',
+                        'error'
+                )
+                console.log("No se puede ingresar datos mayor que el stock actual");
+            } else if (valor !== this.cantidadProductoLineaIngreso) {
+                this.cantidadS = valor;
+            }
+        },
      
       },
        methods :{
@@ -278,8 +297,16 @@
             cerrarModal(accion){
                 let me = this;
                 me.classModal.closeModal(accion);
+                me.ProductoLineaIngreso=0;   
+                me.TiposSeleccionado=0; 
+                me.cambiodeEstado='';
                            
             },
+            registrorAjusteNegativo(){
+                let me =  this;
+                axios.post('/ajustesNeg/registrar',{
+
+            })
 
        },
   

@@ -350,7 +350,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get('/ajustesNeg',[AlmAjusteNegativoController::class,'index']);
     Route::get('/ajustesNeg/listarTipo',[AlmAjusteNegativoController::class,'listarTipo']);
     Route::get('/ajustesNeg/listarProductoLineaIngreso',[AlmAjusteNegativoController::class,'listarProductoLineaIngreso']);
-
+    Route::post('/ajustesNeg/registrar', [AlmAjusteNegativoController::class,'store']);
 
     //--------prueba-----
     Route::get('/prueba',[PruebaDelModeloController::class,'index']);

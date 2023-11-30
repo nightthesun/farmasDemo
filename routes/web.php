@@ -347,11 +347,11 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get('/almacen/listaralmacenes',[AlmAlmacenController::class,'listaralmacenes']);
 
     
-    Route::get('/ajustesNeg',[AlmAjusteNegativoController::class,'index']);
-    Route::get('/ajustesNeg/listarTipo',[AlmAjusteNegativoController::class,'listarTipo']);
-    Route::get('/ajustesNeg/listarProductoLineaIngreso',[AlmAjusteNegativoController::class,'listarProductoLineaIngreso']);
-    Route::post('/ajustesNeg/registrar', [AlmAjusteNegativoController::class,'store']);
-
+    Route::get('/ajustes-negativo',[AlmAjusteNegativoController::class,'index']);
+    Route::get('/ajustes-negativo/listarTipo',[AlmAjusteNegativoController::class,'listarTipo']);
+    Route::get('/ajustes-negativo/listarProductoLineaIngreso',[AlmAjusteNegativoController::class,'listarProductoLineaIngreso']);
+    Route::post('/ajustes-negativo/registrar', [AlmAjusteNegativoController::class,'store']);
+    
     //--------prueba-----
     Route::get('/prueba',[PruebaDelModeloController::class,'index']);
     //-------------------

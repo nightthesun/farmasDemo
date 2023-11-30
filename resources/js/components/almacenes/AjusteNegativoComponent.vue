@@ -93,13 +93,13 @@
                     <div class="alert alert-warning" role="alert">
                         Todos los campos con (*) son requeridos
                     </div>
-                    <form action="" method="post" class="form-horizontal">
+                    <form action=""  class="form-horizontal">
                         <!-- insertar datos -->
                         <div class="container">
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Producto
-                                    <span   class="error">(*)</span>
+                                    <span v-if="ProductoLineaIngreso=='0'"  class="error">(*)</span>
                                 </label>
                                 <div class="col-md-9">
                                     
@@ -115,12 +115,13 @@
                                      </div>
                             </div>
                                    <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Cantidad
-                                        <span   class="error">(*)</span>
+                                      <label class="col-md-3 form-control-label" for="text-input">Cantidad 
+                                        <span v-if="cantidadS==''" class="error">(*)</span>
                                       </label>
                                         <div class="col-md-9">
-                                         <input type="number" id="cantidad" name="cantidad" v-model="cantidadS" class="form-control" placeholder="Datos de stock" >
-                                      </div>
+                                         <input type="number" id="cantidad" name="cantidad" v-model="cantidadS" class="form-control" placeholder="Datos de stock" v-on:focus="selectAll" >
+                                           <span v-if="cantidadS==''" class="error">Debe Ingresar una cantidad</span> 
+                                        </div>
                                   </div>   
 
                            <div class="form-group row">
@@ -133,16 +134,16 @@
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="Tipos in arrayTipos" :key="arrayTipos.id" :value="Tipos.id" v-text="Tipos.nombre"></option>
                                     </select>
-                                    
+                                    <span v-if="TiposSeleccionado==0" class="error">Debe seleccionar una opcion</span>
                                 </div>
                             </div>
                             <div class="form-group row">
                                       <label class="col-md-3 form-control-label" for="text-input">Descripción
-                                        <span   class="error">(*)</span>
+                                        <span v-if="descripcion" class="error">(*)</span>
                                       </label>
                                         <div class="col-md-9">
-                                            <textarea v-model="descripcion" class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
-                           
+                                            <textarea v-model="descripcion" class="form-control" id="descripcion" name="descripcion" rows="3" v-on:focus="selectAll"></textarea>
+                                            <span v-if="descripcion===''" class="error">Debe Ingresar la Descripción</span>
                                       </div>
                                   </div> 
                             
@@ -154,7 +155,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
                     <button type="button"  class="btn btn-primary" @click="registrorAjusteNegativo()" >Guardar</button>
-                        <button type="button" class="btn btn-primary" >Actualizar</button>
+                    <button type="button" class="btn btn-primary" >Actualizar</button>
                    
                 </div>
                 </div>
@@ -191,7 +192,7 @@
         ProductoLineaIngresoSeleccionado:function(newValue){
             if (newValue > 0 ) {
                
-                this.cantidadS=1;
+                this.cantidadS=0;
             let productoSeleccionado=this.arrayProductoLineaIngreso.find(element=>element.id === newValue);
           if (productoSeleccionado) {
             this.cantidadProductoLineaIngreso=productoSeleccionado.cantidad;
@@ -199,7 +200,7 @@
            this.linea=productoSeleccionado.linea;
           this.producto=productoSeleccionado.name;
           this.fecha=productoSeleccionado.fechaIngreso;
-            console.log(">>>>", productoSeleccionado.cantidad);
+            console.log( productoSeleccionado.cantidad);
                 } else {
     console.log("No matching element found in arrayProductoLineaIngreso.");
         }
@@ -212,7 +213,7 @@
 
         cantidadS: function (valor) {
             if (valor > this.cantidadProductoLineaIngreso) {
-                this.cantidadS = 1;
+                this.cantidadS = 0;
                 Swal.fire(
                       'No puede ingresar un número mayor al stock actual',
                         'Haga click en Ok',
@@ -225,11 +226,47 @@
         },
      
       },
+
+       computed:{
+           sicompleto(){
+            let me=this;
+            if (me.descripcion!='' && me.TiposSeleccionado!='' && me.cantidadS!='' && me.ProductoLineaIngresoSeleccionado)
+                return true;
+               else 
+                return false;    
+            
+           },
+           isActived:function(){
+            return this.pagination.currrent_page;
+           },
+           pagesNumber:function(){
+            if(!this.pagination.to){
+                return[];
+            }
+            var from = this.pagination.current_page - this.offset;
+            if(from>1){
+                from=1;
+            }
+            var to = from +(this.offset * 2);
+            if (to >= this.pagination.last_page) {
+                to=this.pagination.last_page;
+            }
+            var pagesArray =[];
+            while(from<=to){
+                pagesArray.push(from);
+                from++;
+            }
+            return pagesArray;
+           }, 
+        },
+      
        methods :{
+        
+        
         
         ajustesNegativos(){
                 let me=this;
-                var url='/ajustesNeg/listarTipo';
+                var url='/ajustes-negativo/listarTipo';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.arrayTipos=respuesta;
@@ -251,7 +288,7 @@
                 
           ProductoLineaIngreso(){
                 let me=this;
-                var url='/ajustesNeg/listarProductoLineaIngreso';
+                var url='/ajustes-negativo/listarProductoLineaIngreso';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.arrayProductoLineaIngreso=respuesta;
@@ -311,18 +348,27 @@
                 me.fecha='';
                            
             },
+        
             registrorAjusteNegativo(){
                 let me =  this;
-                axios.post('/ajustesNeg/registrar',{
-                    'codigo':me.codigo,
+                if (me.codigo === "" || me.linea  === "" || me.producto ===  "" || me.cantidadS === "" || me.TiposSeleccionado === "" || me.descripcion === "" || me.fecha === ""  ) {
+                    Swal.fire(
+                        'No puede ingresar valor nulos  o vacios',
+                        'Haga click en Ok',
+                        'warning'
+                    )    
+                }
+                else {
+                    axios.post('/ajustes-negativo/registrar',{
+                   'codigo':me.codigo,
                    'linea':me.linea,
-                   // 'producto':me.producto,
-                   // 'cantidad':me.cantidadProductoLineaIngreso,
-                   // 'tipo':me.TiposSeleccionado,
-                   // 'descripcion':me.descripcion,
-                   // 'fecha':me.fecha,
-                   // 'activado':1,
-                   // 'estado':1,
+                   'producto':me.producto,
+                   'cantidad':me.cantidadS,
+                   'tipo':me.TiposSeleccionado,
+                   'descripcion':me.descripcion,
+                   'fecha':me.fecha,
+                   'activo':1,
+                   'estado':1,
             }).then(function(response){
                     me.cerrarModal('registrar');
                     Swal.fire(
@@ -333,9 +379,10 @@
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
-
-       },
+                });      
+                }
+              
+            },
 
        },
   
@@ -347,7 +394,6 @@
         this.cambiodeEstado();
         
        }
-
      }
 </script>
 <style scoped>

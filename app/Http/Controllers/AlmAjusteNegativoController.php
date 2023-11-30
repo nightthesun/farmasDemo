@@ -13,7 +13,23 @@ class AlmAjusteNegativoController extends Controller
      */
     public function index(Request $request)
     {
-    
+        $buscararray=array();
+        if (!empty($request->buscar)) {
+            $buscararray = explode(" ",$request->buscar);
+            $valor=sizeof($buscararray);
+                if ($valor > 0) {
+                    $sql='';
+                    foreach($buscararray as $valor)
+                    {
+                        if(empty($sqls)){
+                          $sqls="
+                          select aan.id as id, aan.producto as nombreProd, aan.descripcion as descripcion ,aan.usuario as nombre_usuario, aan.codigo as codigo, aan.linea as linea, aan.cantidad as cantidad,pte.nombre as nombreTipo,aan.fecha as fecha,aan.estado as estado,aan.created_at as fecha_creacion, aan.activo as activo
+                          from alm__ajuste_negativos aan 
+                          join prod__tipo_entradas pte on aan.tipo=pte.id"      
+                        }
+                    }
+                }
+        }
     }
    
 
@@ -24,42 +40,24 @@ class AlmAjusteNegativoController extends Controller
     {
         //
     }
-
+    
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        dd($request);
-        exit;
-        $letracodigo='ALM';
-        $maxcorrelativo = Alm_Almacen::select(DB::raw('max(correlativo) as maximo'))
-                                      ->get()->toArray();
-        $correlativo=$maxcorrelativo[0]['maximo'];
-        if(is_null($correlativo))
-            $correlativo=1;
-        else
-            $correlativo=$correlativo+1;
-
-        if($correlativo<10)
-            $codigo='00'.$correlativo;
-        else
-            if($correlativo<100)
-                $codigo='0'.$correlativo;
-                
-        
-        $codigo=$letracodigo.$codigo;
         $ajusteNegativo=new Alm_AjusteNegativo();
         $ajusteNegativo->id_usuario = auth()->user()->id;
         $ajusteNegativo->usuario = auth()->user()->name;
         $ajusteNegativo->codigo=$request->codigo;
-        $ajusteNegativo->linea=$request->liena;
+        $ajusteNegativo->linea=$request->linea;
         $ajusteNegativo->producto=$request->producto;
         $ajusteNegativo->cantidad=$request->cantidad;
         $ajusteNegativo->tipo=$request->tipo;
         $ajusteNegativo->descripcion=$request->descripcion;
-        $ajusteNegativo->fecha=$request->estado;
-        $ajusteNegativo->activado=$request->activado;
+        $ajusteNegativo->fecha=$request->fecha;
+        $ajusteNegativo->activo=$request->activo;
+        $ajusteNegativo->estado=$request->estado;
         $ajusteNegativo->save();
       
     }

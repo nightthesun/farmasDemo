@@ -93,7 +93,7 @@
                     <div class="alert alert-warning" role="alert">
                         Todos los campos con (*) son requeridos
                     </div>
-                    <form action="" class="form-horizontal">
+                    <form action="" method="post" class="form-horizontal">
                         <!-- insertar datos -->
                         <div class="container">
                             <div class="form-group row">
@@ -111,9 +111,8 @@
                                     <input type="text"  v-model="codigo" hidden>
                                     <input type="text"  v-model="linea" hidden>
                                     <input type="text"  v-model="producto" hidden>
-                                    <input type="date"  v-model="fecha" hidden>
-                                    
-                                      </div>
+                                    <input type="text"  v-model="fecha" hidden>
+                                     </div>
                             </div>
                                    <div class="form-group row">
                                       <label class="col-md-3 form-control-label" for="text-input">Cantidad
@@ -154,7 +153,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
-                    <button type="button"  class="btn btn-primary" >Guardar</button>
+                    <button type="button"  class="btn btn-primary" @click="registrorAjusteNegativo()" >Guardar</button>
                         <button type="button" class="btn btn-primary" >Actualizar</button>
                    
                 </div>
@@ -182,14 +181,10 @@
                 listarTipo:0,
                 cantidadProductoLineaIngreso:'',
                 descripcion:'',
-                cantidad:'',
                 codigo:'',
                 linea:'',
                 producto:'',
-                tipo:'',
-                descripcion:'',
                 fecha:'',
-                estado:'',
             }
         },
       watch:{
@@ -200,8 +195,10 @@
             let productoSeleccionado=this.arrayProductoLineaIngreso.find(element=>element.id === newValue);
           if (productoSeleccionado) {
             this.cantidadProductoLineaIngreso=productoSeleccionado.cantidad;
-            this.codigo=productoSeleccionado.codigoProducto;
-            this.linea=productoSeleccionado.codigoProducto;
+             this.codigo=productoSeleccionado.codigoProducto;
+           this.linea=productoSeleccionado.linea;
+          this.producto=productoSeleccionado.name;
+          this.fecha=productoSeleccionado.fechaIngreso;
             console.log(">>>>", productoSeleccionado.cantidad);
                 } else {
     console.log("No matching element found in arrayProductoLineaIngreso.");
@@ -247,7 +244,7 @@
             cambiodeEstado(valor){
                  let me=this;
                  const productoSeleccionado = me.arrayProductoLineaIngreso.find(element => element.id == this.ProductoLineaIngresoSeleccionado);
-                console.log(">>>>>>>>"+me.productoSeleccionado);
+      
 
               }  ,
           
@@ -282,6 +279,12 @@
                         me.ProductoLineaIngreso=0;   
                         me.TiposSeleccionado=0; 
                         me.cambiodeEstado='';
+                        me.codigo='';
+                        me.linea='';
+                        me.producto='',
+                        me.cantidadS='';
+                        me.descripcion='';
+                        me.fecha='';
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -300,13 +303,39 @@
                 me.ProductoLineaIngreso=0;   
                 me.TiposSeleccionado=0; 
                 me.cambiodeEstado='';
+                me.codigo='';
+                me.linea='';
+                me.producto='',
+                me.cantidadS='';
+                me.descripcion='';
+                me.fecha='';
                            
             },
             registrorAjusteNegativo(){
                 let me =  this;
                 axios.post('/ajustesNeg/registrar',{
+                    'codigo':me.codigo,
+                   'linea':me.linea,
+                   // 'producto':me.producto,
+                   // 'cantidad':me.cantidadProductoLineaIngreso,
+                   // 'tipo':me.TiposSeleccionado,
+                   // 'descripcion':me.descripcion,
+                   // 'fecha':me.fecha,
+                   // 'activado':1,
+                   // 'estado':1,
+            }).then(function(response){
+                    me.cerrarModal('registrar');
+                    Swal.fire(
+                        'Ajuste de negativos Registrado exitosamente',
+                        'Haga click en Ok',
+                        'success'
+                    )
+                }).catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
 
-            })
+       },
 
        },
   

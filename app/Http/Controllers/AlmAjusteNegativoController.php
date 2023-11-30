@@ -30,6 +30,8 @@ class AlmAjusteNegativoController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request);
+        exit;
         $letracodigo='ALM';
         $maxcorrelativo = Alm_Almacen::select(DB::raw('max(correlativo) as maximo'))
                                       ->get()->toArray();

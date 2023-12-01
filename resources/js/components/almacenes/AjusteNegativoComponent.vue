@@ -2,7 +2,7 @@
     <main class="main">
         <!-- Breadcrumb -->
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">Home32323</li>
+            <li class="breadcrumb-item">Home</li>
             <li class="breadcrumb-item"><a href="#">Admin</a></li>
             <li class="breadcrumb-item active">Dashboard</li>
       
@@ -21,7 +21,7 @@
                         <div class="col-md-6">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar">
-                                <button type="submit" class="btn btn-primary" ><i class="fa fa-search" ></i> Buscar</button>
+                                <button type="submit" class="btn btn-primary" @click="listarAjusteNegativos(1)"><i class="fa fa-search" ></i> Buscar</button>
                            
                                     
                             </div>
@@ -43,11 +43,13 @@
                                 <th>Estado</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             
-                           <tr>
+                           
+
                             <h4 style="text-align: center;"> Sin datos123...</h4>
-                          
+                          <tr >
                             <td>1</td>
                             <td>2</td>
                             <td>3</td>
@@ -186,6 +188,7 @@
                 linea:'',
                 producto:'',
                 fecha:'',
+                arrayAjusteNegaticos:[],
             }
         },
       watch:{
@@ -239,7 +242,8 @@
            isActived:function(){
             return this.pagination.currrent_page;
            },
-           pagesNumber:function(){
+           /** 
+            pagesNumber:function(){
             if(!this.pagination.to){
                 return[];
             }
@@ -257,7 +261,9 @@
                 from++;
             }
             return pagesArray;
-           }, 
+           },  
+           */
+           
         },
       
        methods :{
@@ -300,11 +306,11 @@
                     console.log(error);
                 });
             },
-        cambiarPagina(page){
-                let me =this;
-                me.pagination.current_page = page;
-                me.listarAlmacenes(page);
-            },
+      //  cambiarPagina(page){
+      //          let me =this;
+      //          me.pagination.current_page = page;
+      //          me.listarAlmacenes(page);
+      //      },
 
 
         abrirModal(accion,data= []){
@@ -368,7 +374,7 @@
                    'descripcion':me.descripcion,
                    'fecha':me.fecha,
                    'activo':1,
-                   'estado':1,
+                  
             }).then(function(response){
                     me.cerrarModal('registrar');
                     Swal.fire(
@@ -381,8 +387,20 @@
                     console.log(error);
                 });      
                 }
-              
             },
+            //para listar db alm__ajuste_negativos
+            listarAjusteNegativos(page){
+               let me=this;
+               var url='/ajustes-negativo?page='+page+'&buscar='+me.buscar;
+               axios.get(url)
+               .then(function(response){
+                    var respuesta =  response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayAjusteNegaticos = respuesta.query_ajuste_negativos.data;
+               }).catch(function (error) {
+                    error401(error);
+               });             
+            }
 
        },
   

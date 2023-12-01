@@ -14,22 +14,92 @@ class AlmAjusteNegativoController extends Controller
     public function index(Request $request)
     {
         $buscararray=array();
-        if (!empty($request->buscar)) {
+       
+        if(!empty($request->buscar))
+        {
             $buscararray = explode(" ",$request->buscar);
             $valor=sizeof($buscararray);
-                if ($valor > 0) {
-                    $sql='';
-                    foreach($buscararray as $valor)
-                    {
-                        if(empty($sqls)){
-                          $sqls="
-                          select aan.id as id, aan.producto as nombreProd, aan.descripcion as descripcion ,aan.usuario as nombre_usuario, aan.codigo as codigo, aan.linea as linea, aan.cantidad as cantidad,pte.nombre as nombreTipo,aan.fecha as fecha,aan.estado as estado,aan.created_at as fecha_creacion, aan.activo as activo
-                          from alm__ajuste_negativos aan 
-                          join prod__tipo_entradas pte on aan.tipo=pte.id"      
-                        }
+            if($valor > 0){
+                $sqls='';
+                foreach($buscararray as $valor)
+                {
+                    if(empty($sqls)){
+                        $sqls="(
+                                alm__ajuste_negativos.codigo like '%".$valor."%' 
+                                or alm__ajuste_negativos.linea like '%".$valor."%' 
+                                or alm__ajuste_negativos.producto like '%".$valor."%' 
+                               )";
                     }
+                    else
+                    {
+                        $sqls.="and (alm__ajuste_negativos.codigo like '%".$valor."%' 
+                        or alm__ajuste_negativos.linea like '%".$valor."%' 
+                        or alm__ajuste_negativos.producto like '%".$valor."%' 
+                       )";
+                    }
+    
                 }
+                    $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
+                        ->join('prod__tipo_entrada as pte', 'aan.tipo', '=', 'pte.id')
+                        ->select('aan.id as id',
+                        'aan.prodcuto as nombreProd',
+                        'aan.codigo as codigo',
+                        'aan.linea as linea',
+                        'aan.descripcion as descripcion',
+                        'aan.cantidad as cantidad',
+                        'pte.nombre as nombreTipo',
+                        'aan.fecha as fecha',
+                        'aan.estado as estado',
+                        'aan.created_at as fecha_creacion',
+                        'aan.activo as activo')
+                        ->whereraw($sqls)
+                        ->paginate(20);
+            }
+            
+            return 
+            [
+                    'pagination'=>
+                        [
+                            'total'         =>    $query_ajuste_negativos->total(),
+                            'current_page'  =>    $query_ajuste_negativos->currentPage(),
+                            'per_page'      =>    $query_ajuste_negativos->perPage(),
+                            'last_page'     =>    $query_ajuste_negativos->lastPage(),
+                            'from'          =>    $query_ajuste_negativos->firstItem(),
+                            'to'            =>    $query_ajuste_negativos->lastItem(),
+                        ] ,
+                    'query_ajuste_negativos'=>$query_ajuste_negativos,
+            ];
+        }else {
+
+            $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
+            ->join('prod__tipo_entrada as pte', 'aan.tipo', '=', 'pte.id')
+            ->select('aan.id as id',
+            'aan.prodcuto as nombreProd',
+            'aan.codigo as codigo',
+            'aan.linea as linea',
+            'aan.descripcion as descripcion',
+            'aan.cantidad as cantidad',
+            'pte.nombre as nombreTipo',
+            'aan.fecha as fecha',
+            'aan.estado as estado',
+            'aan.created_at as fecha_creacion',
+            'aan.activo as activo')
+            //->whereraw($sqls)
+            ->paginate(15);
+            return [
+                    'pagination'=>[
+                        'total'         =>    $query_ajuste_negativos->total(),
+                        'current_page'  =>    $query_ajuste_negativos->currentPage(),
+                        'per_page'      =>    $query_ajuste_negativos->perPage(),
+                        'last_page'     =>    $query_ajuste_negativos->lastPage(),
+                        'from'          =>    $query_ajuste_negativos->firstItem(),
+                        'to'            =>    $query_ajuste_negativos->lastItem(),
+                    ] ,
+                    'query_ajuste_negativos'=>$query_ajuste_negativos,
+               ];
         }
+        
+
     }
    
 
@@ -57,7 +127,7 @@ class AlmAjusteNegativoController extends Controller
         $ajusteNegativo->descripcion=$request->descripcion;
         $ajusteNegativo->fecha=$request->fecha;
         $ajusteNegativo->activo=$request->activo;
-        $ajusteNegativo->estado=$request->estado;
+      
         $ajusteNegativo->save();
       
     }
@@ -121,7 +191,17 @@ class AlmAjusteNegativoController extends Controller
      */
     public function update(Request $request, Alm_AjusteNegativo $alm_AjusteNegativo)
     {
-        //
+        $updateAjusteNegativo=Alm_AjusteNegativo::find($request->id);
+        $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
+        $updateAjusteNegativo->codigo=$request->codigo;
+        $updateAjusteNegativo->linea=$request->linea;
+        $updateAjusteNegativo->producto=$request->producto;
+        $updateAjusteNegativo->cantidad=$request->cantidad;
+        $updateAjusteNegativo->tipo=$request->tipo;
+        $updateAjusteNegativo->descripcion=$request->descripcion;
+        $updateAjusteNegativo->fecha=$request->fecha;
+       
+        $updateAjusteNegativo->save();
     }
 
     /**
@@ -131,6 +211,16 @@ class AlmAjusteNegativoController extends Controller
     {
         //
     }
-
-   
+    public function desactivar(Request $request){
+        $updateAjusteNegativo = Alm_AjusteNegativo::findOrFail($request->id);
+        $updateAjusteNegativo->activo=0;
+        $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
+        $updateAjusteNegativo->save();
+    }
+    public function activar(Request $request){
+        $updateAjusteNegativo = Alm_AjusteNegativo::findOrFail($request->id);
+        $updateAjusteNegativo->activo=1;
+        $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
+        $updateAjusteNegativo->save();
+    }
 }

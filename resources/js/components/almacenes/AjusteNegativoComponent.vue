@@ -45,21 +45,38 @@
                         </thead>
 
                         <tbody>
+                         <!--botones de opciones-->   
+                          <tr v-for="AjusteNegativos  in arrayAjusteNegativos" :key="AjusteNegativos.id">
+                            <div v-if="AjusteNegativos">
+                                <td>
+                                    <h4>sdadas</h4>
+                                    <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',ajusteNegaticos)">
+                                       <i class="icon-pencil"></i>    
+                                    </button> &nbsp;
+                                    <button v-if="ajusteNegaticos.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAjusteNegaticos(ajusteNegaticos.id)" >
+                                        <i class="icon-trash"></i>
+                                    </button>
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAjusteNegaticos(ajusteNegaticos.id)" >
+                                        <i class="icon-check"></i>
+                                    </button>
+                                </td>
+                                <td v-text="ajusteNegaticos.nombre_usuario"></td>
+                                <td v-text="ajusteNegaticos.codigo"></td>
+                                <td v-text="ajusteNegaticos.linea"></td>
+                                <td v-text="ajusteNegaticos.nombreProd"></td>
+                                <td v-text="ajusteNegaticos.cantidad"></td>
+                                <td v-text="ajusteNegaticos.nombreTipo"></td>
+                                <td v-text="ajusteNegaticos.descripcion"></td>
+                                <td v-text="ajusteNegaticos.fecha"></td>
+                                <td v-if="ajusteNegaticos.activo=1">
+                                    <span> class="badge "></span>
+                                </td>
+                                <td v-else=""></td>
+                            </div>
+                            <div v-else="">
+                                <h4 style="text-align: center;"> Sin datos...</h4>
+                            </div>
                             
-                           
-
-                            <h4 style="text-align: center;"> Sin datos123...</h4>
-                          <tr >
-                            <td>1</td>
-                            <td>2</td>
-                            <td>3</td>
-                            <td>4</td>
-                            <td>5</td>
-                            <td>6</td>
-                            <td>7</td>
-                            <td>8</td>
-                            <td>9</td>
-                            <td>10</td>
                            </tr>
                         </tbody>
                     </table>
@@ -188,7 +205,7 @@
                 linea:'',
                 producto:'',
                 fecha:'',
-                arrayAjusteNegaticos:[],
+                arrayAjusteNegativos:[],
             }
         },
       watch:{

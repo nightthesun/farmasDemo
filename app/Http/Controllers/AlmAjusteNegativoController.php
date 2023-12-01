@@ -42,6 +42,7 @@ class AlmAjusteNegativoController extends Controller
                     $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
                         ->join('prod__tipo_entrada as pte', 'aan.tipo', '=', 'pte.id')
                         ->select('aan.id as id',
+                        'aan.usuario as nombre_usuario',
                         'aan.prodcuto as nombreProd',
                         'aan.codigo as codigo',
                         'aan.linea as linea',
@@ -74,6 +75,7 @@ class AlmAjusteNegativoController extends Controller
             $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
             ->join('prod__tipo_entrada as pte', 'aan.tipo', '=', 'pte.id')
             ->select('aan.id as id',
+            'aan.usuario as nombre_usuario',
             'aan.prodcuto as nombreProd',
             'aan.codigo as codigo',
             'aan.linea as linea',

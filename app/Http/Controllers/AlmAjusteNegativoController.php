@@ -13,6 +13,7 @@ class AlmAjusteNegativoController extends Controller
      */
     public function index(Request $request)
     {
+       
         $buscararray=array();
        
         if(!empty($request->buscar))
@@ -40,23 +41,23 @@ class AlmAjusteNegativoController extends Controller
     
                 }
                     $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
-                        ->join('prod__tipo_entrada as pte', 'aan.tipo', '=', 'pte.id')
+                        ->join('prod__tipo_entradas as pte', 'aan.tipo', '=', 'pte.id')
                         ->select('aan.id as id',
                         'aan.usuario as nombre_usuario',
-                        'aan.prodcuto as nombreProd',
+                        'aan.producto as nombreProd',
                         'aan.codigo as codigo',
                         'aan.linea as linea',
                         'aan.descripcion as descripcion',
                         'aan.cantidad as cantidad',
                         'pte.nombre as nombreTipo',
                         'aan.fecha as fecha',
-                        'aan.estado as estado',
+                        
                         'aan.created_at as fecha_creacion',
                         'aan.activo as activo')
                         ->whereraw($sqls)
                         ->paginate(20);
             }
-            
+      
             return 
             [
                     'pagination'=>
@@ -73,17 +74,17 @@ class AlmAjusteNegativoController extends Controller
         }else {
 
             $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
-            ->join('prod__tipo_entrada as pte', 'aan.tipo', '=', 'pte.id')
+            ->join('prod__tipo_entradas as pte', 'aan.tipo', '=', 'pte.id')
             ->select('aan.id as id',
             'aan.usuario as nombre_usuario',
-            'aan.prodcuto as nombreProd',
+            'aan.producto as nombreProd',
             'aan.codigo as codigo',
             'aan.linea as linea',
             'aan.descripcion as descripcion',
             'aan.cantidad as cantidad',
             'pte.nombre as nombreTipo',
             'aan.fecha as fecha',
-            'aan.estado as estado',
+            
             'aan.created_at as fecha_creacion',
             'aan.activo as activo')
             //->whereraw($sqls)

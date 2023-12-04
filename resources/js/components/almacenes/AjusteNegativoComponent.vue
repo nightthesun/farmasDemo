@@ -20,7 +20,7 @@
                     <div class="form-group row">
                         <div class="col-md-6">
                             <div class="input-group">
-                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar">
+                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar" @key.enter="listarAjusteNegativos(1)">
                                 <button type="submit" class="btn btn-primary" @click="listarAjusteNegativos(1)"><i class="fa fa-search" ></i> Buscar</button>
                            
                                     
@@ -47,45 +47,46 @@
                         <tbody>
                          <!--botones de opciones-->   
                           <tr v-for="AjusteNegativos  in arrayAjusteNegativos" :key="AjusteNegativos.id">
-                            <div v-if="AjusteNegativos">
+                           
                                 <td>
-                                    <h4>sdadas</h4>
+                                 
                                     <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',ajusteNegaticos)">
                                        <i class="icon-pencil"></i>    
                                     </button> &nbsp;
-                                    <button v-if="ajusteNegaticos.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAjusteNegaticos(ajusteNegaticos.id)" >
+                                    <button v-if="AjusteNegativos.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAjusteNegativos(AjusteNegativos.id)" >
                                         <i class="icon-trash"></i>
                                     </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAjusteNegaticos(ajusteNegaticos.id)" >
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAjusteNegativo(AjusteNegativos.id)" >
                                         <i class="icon-check"></i>
                                     </button>
+                                    
+                                   
+                                 
                                 </td>
-                                <td v-text="ajusteNegaticos.nombre_usuario"></td>
-                                <td v-text="ajusteNegaticos.codigo"></td>
-                                <td v-text="ajusteNegaticos.linea"></td>
-                                <td v-text="ajusteNegaticos.nombreProd"></td>
-                                <td v-text="ajusteNegaticos.cantidad"></td>
-                                <td v-text="ajusteNegaticos.nombreTipo"></td>
-                                <td v-text="ajusteNegaticos.descripcion"></td>
-                                <td v-text="ajusteNegaticos.fecha"></td>
-                                <td v-if="ajusteNegaticos.activo=1">
-                                    <span> class="badge "></span>
+                                <td v-text="AjusteNegativos.nombre_usuario"></td>
+                                <td v-text="AjusteNegativos.codigo"></td>
+                                <td v-text="AjusteNegativos.linea"></td>
+                                <td v-text="AjusteNegativos.nombreProd"></td>
+                                <td v-text="AjusteNegativos.cantidad"></td>
+                                <td v-text="AjusteNegativos.nombreTipo"></td>
+                                <td v-text="AjusteNegativos.descripcion"></td>
+                                <td v-text="AjusteNegativos.fecha"></td>
+                                <td v-if="AjusteNegativos.activo=1">
+                                    <span> 1</span>
                                 </td>
                                 <td v-else=""></td>
-                            </div>
-                            <div v-else="">
-                                <h4 style="text-align: center;"> Sin datos...</h4>
-                            </div>
+                          
+                           
                             
                            </tr>
                         </tbody>
                     </table>
                     <nav>
                         <ul class="pagination">
-                            <li class="page-item">
+                            <li class="page-item"  v-if="pagination.current_page > 1">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
                             </li>
-                            <li class="page-item">
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
                             </li>
                             <li class="page-item">
@@ -206,6 +207,8 @@
                 producto:'',
                 fecha:'',
                 arrayAjusteNegativos:[],
+                buscar:'',
+                idAjusteNegativos:0,
             }
         },
       watch:{
@@ -399,6 +402,7 @@
                         'Haga click en Ok',
                         'success'
                     )
+                    me.listarAjusteNegativos();
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
@@ -413,17 +417,112 @@
                .then(function(response){
                     var respuesta =  response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayAjusteNegaticos = respuesta.query_ajuste_negativos.data;
+                    me.arrayAjusteNegativos = respuesta.query_ajuste_negativos.data;
                }).catch(function (error) {
                     error401(error);
                });             
-            }
+            },
+
+            eliminarAjusteNegativos(idAjusteNegativos){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Desactivar?',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/ajustes-negativo/desactivar',{
+                        'id': idAjusteNegativos
+                    }).then(function (response) {
+                        me.listarAlmacenes();
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )
+                        me.listarAjusteNegativos();
+                        
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+            activarAjusteNegativos(idAjusteNegativos){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/ajustes-negativo/activar',{
+                        'id': idAjusteNegativos
+                    }).then(function (response) {
+                        me.listarAlmacenes();
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
 
        },
   
        mounted() {
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');
+        this.listarAjusteNegativos(1);
         this.ajustesNegativos();
         this.ProductoLineaIngreso();
         this.cambiodeEstado();

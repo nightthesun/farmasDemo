@@ -26,36 +26,43 @@ class AlmAjusteNegativoController extends Controller
                 {
                     if(empty($sqls)){
                         $sqls="(
-                                alm__ajuste_negativos.codigo like '%".$valor."%' 
-                                or alm__ajuste_negativos.linea like '%".$valor."%' 
-                                or alm__ajuste_negativos.producto like '%".$valor."%' 
+                                aan.codigo like '%".$valor."%' 
+                                or aan.linea like '%".$valor."%' 
+                                or aan.producto like '%".$valor."%'
+                                or pte.nombre like '%".$valor."%' 
+                                or aan.descripcion like '%".$valor."%'
                                )";
                     }
                     else
                     {
-                        $sqls.="and (alm__ajuste_negativos.codigo like '%".$valor."%' 
-                        or alm__ajuste_negativos.linea like '%".$valor."%' 
-                        or alm__ajuste_negativos.producto like '%".$valor."%' 
+                        $sqls.="and (aan.codigo like '%".$valor."%' 
+                        or aan.linea like '%".$valor."%' 
+                        or aan.nombreProd.producto like '%".$valor."%' 
+                        or pte.nombre like '%".$valor."%' 
+                        or aan.descripcion like '%".$valor."%'
                        )";
                     }
     
                 }
                     $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
-                        ->join('prod__tipo_entradas as pte', 'aan.tipo', '=', 'pte.id')
+                        ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
                         ->select('aan.id as id',
+                        'aan.id_producto_linea as id_producto_linea',
                         'aan.usuario as nombre_usuario',
                         'aan.producto as nombreProd',
                         'aan.codigo as codigo',
                         'aan.linea as linea',
                         'aan.descripcion as descripcion',
                         'aan.cantidad as cantidad',
+                        'aan.id_tipo as id_tipo',
                         'pte.nombre as nombreTipo',
                         'aan.fecha as fecha',
                         
                         'aan.created_at as fecha_creacion',
                         'aan.activo as activo')
-                        ->whereraw($sqls)
-                        ->paginate(20);
+                        ->whereRaw($sqls)
+                        ->paginate(15);
+                        
             }
       
             return 
@@ -74,8 +81,10 @@ class AlmAjusteNegativoController extends Controller
         }else {
 
             $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
-            ->join('prod__tipo_entradas as pte', 'aan.tipo', '=', 'pte.id')
+            ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
             ->select('aan.id as id',
+            'aan.id_producto_linea as id_producto_linea',
+            'aan.id_tipo as id_tipo',
             'aan.usuario as nombre_usuario',
             'aan.producto as nombreProd',
             'aan.codigo as codigo',
@@ -122,11 +131,12 @@ class AlmAjusteNegativoController extends Controller
         $ajusteNegativo=new Alm_AjusteNegativo();
         $ajusteNegativo->id_usuario = auth()->user()->id;
         $ajusteNegativo->usuario = auth()->user()->name;
+        $ajusteNegativo->id_tipo=$request->id_tipo;
+        $ajusteNegativo->id_producto_linea=$request->id_producto_linea;
         $ajusteNegativo->codigo=$request->codigo;
         $ajusteNegativo->linea=$request->linea;
         $ajusteNegativo->producto=$request->producto;
         $ajusteNegativo->cantidad=$request->cantidad;
-        $ajusteNegativo->tipo=$request->tipo;
         $ajusteNegativo->descripcion=$request->descripcion;
         $ajusteNegativo->fecha=$request->fecha;
         $ajusteNegativo->activo=$request->activo;

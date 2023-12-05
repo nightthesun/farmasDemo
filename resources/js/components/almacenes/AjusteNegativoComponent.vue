@@ -71,10 +71,15 @@
                                 <td v-text="AjusteNegativos.nombreTipo"></td>
                                 <td v-text="AjusteNegativos.descripcion"></td>
                                 <td v-text="AjusteNegativos.fecha"></td>
-                                <td v-if="AjusteNegativos.activo=1">
-                                    <span> 1</span>
+                                <td>
+                                    <div v-if="AjusteNegativos.activo==1">
+                                        <span class="badge badge-success">Activo</span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="badge badge-warning">Desactivado</span>
+                                    </div>
+                                    
                                 </td>
-                                <td v-else=""></td>
                           
                            
                             
@@ -83,13 +88,13 @@
                     </table>
                     <nav>
                         <ul class="pagination">
-                            <li class="page-item"  v-if="pagination.current_page > 1">
+                            <li class="page-item" v-if="pagination.current_page > 1">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
                             </li>
                             <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
-                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
                             </li>
-                            <li class="page-item">
+                            <li class="page-item" v-if="pagination.current_page< pagination.last_page">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
                             </li>
                         </ul>
@@ -175,7 +180,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
                     <button type="button"  class="btn btn-primary" @click="registrorAjusteNegativo()" >Guardar</button>
-                    <button type="button" class="btn btn-primary" >Actualizar</button>
+                    <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarAjusteNegativo()">Actualizar</button>
                    
                 </div>
                 </div>
@@ -193,11 +198,21 @@
      export default{
         data(){
             return{
+                pagination:{
+                    'total' :0,
+                    'current_page':0,
+                    'per_page':0,
+                    'last_page':0,
+                    'from':0,
+                    'to':0
+                },
                 tituloModal:'',
                 arrayTipos:[],
                 TiposSeleccionado:0,
+                id_tipo:'',
                 arrayProductoLineaIngreso:[],
                 ProductoLineaIngresoSeleccionado:0,
+                id_producto_linea:'',
                 cantidadS:'',
                 listarTipo:0,
                 cantidadProductoLineaIngreso:'',
@@ -209,6 +224,8 @@
                 arrayAjusteNegativos:[],
                 buscar:'',
                 idAjusteNegativos:0,
+                offset:3,
+                tipoAccion:1,
             }
         },
       watch:{
@@ -260,29 +277,29 @@
             
            },
            isActived:function(){
-            return this.pagination.currrent_page;
-           },
-           /** 
+                return this.pagination.current_page;
+            },
+           
             pagesNumber:function(){
-            if(!this.pagination.to){
-                return[];
-            }
-            var from = this.pagination.current_page - this.offset;
-            if(from>1){
-                from=1;
-            }
-            var to = from +(this.offset * 2);
-            if (to >= this.pagination.last_page) {
-                to=this.pagination.last_page;
-            }
-            var pagesArray =[];
-            while(from<=to){
-                pagesArray.push(from);
-                from++;
-            }
-            return pagesArray;
-           },  
-           */
+                if(!this.pagination.to){
+                    return[];
+                }
+                var from = this.pagination.current_page - this.offset;
+                if(from<1){
+                    from=1;
+                }
+                var to = from +(this.offset * 2);
+                if(to>= this.pagination.last_page){
+                    to=this.pagination.last_page;
+                }
+                var pagesArray =[];
+                while(from<=to){
+                    pagesArray.push(from);
+                    from++
+                }
+                return pagesArray;
+            }, 
+           
            
         },
       
@@ -326,11 +343,11 @@
                     console.log(error);
                 });
             },
-      //  cambiarPagina(page){
-      //          let me =this;
-      //          me.pagination.current_page = page;
-      //          me.listarAlmacenes(page);
-      //      },
+        cambiarPagina(page){
+               let me =this;
+              me.pagination.current_page = page;
+               me.listarAjusteNegativos(page);
+           },
 
 
         abrirModal(accion,data= []){
@@ -342,6 +359,7 @@
                         me.ProductoLineaIngreso=0;   
                         me.TiposSeleccionado=0; 
                         me.cambiodeEstado='';
+                        me.tipoAccion=1;
                         me.codigo='';
                         me.linea='';
                         me.producto='',
@@ -352,8 +370,13 @@
                         break;
                     }
                     case 'actualizar':
-                        {
+                        {   
+                        me.tituloModal='Ajuste de negativos'
+                       
+
+                            me.tipoAccion=2;
                             me.classModal.openModal('registrar');
+                            break;
                         }
                  
 
@@ -372,6 +395,7 @@
                 me.cantidadS='';
                 me.descripcion='';
                 me.fecha='';
+                tipoAccion=1;
                            
             },
         
@@ -386,11 +410,12 @@
                 }
                 else {
                     axios.post('/ajustes-negativo/registrar',{
+                   'id_tipo':me.TiposSeleccionado,
+                   'id_producto_linea':me.ProductoLineaIngresoSeleccionado,
                    'codigo':me.codigo,
                    'linea':me.linea,
                    'producto':me.producto,
                    'cantidad':me.cantidadS,
-                   'tipo':me.TiposSeleccionado,
                    'descripcion':me.descripcion,
                    'fecha':me.fecha,
                    'activo':1,
@@ -408,6 +433,30 @@
                     console.log(error);
                 });      
                 }
+            },
+            actualizarAjusteNegativo(){
+                let me =this;
+                axios.put('/ajustes-negativo/actualizar',{
+                    'id':me.idAjusteNegativos,
+                    'codigo':me.codigo,
+                   'linea':me.linea,
+                   'producto':me.producto,
+                   'cantidad':me.cantidadS,
+                   'tipo':me.TiposSeleccionado,
+                   'descripcion':me.descripcion,
+                   'fecha':me.fecha,
+                
+                }).then(function (response) {
+                    me.listarAlmacenes();
+                    Swal.fire(
+                        'Actualizado Correctamente!',
+                        'El registro a sido actualizado Correctamente',
+                        'success'
+                    )
+                }).catch(function (error) {
+                    error401(error);
+                });
+                me.cerrarModal('registrar'); 
             },
             //para listar db alm__ajuste_negativos
             listarAjusteNegativos(page){
@@ -446,7 +495,7 @@
                      axios.put('/ajustes-negativo/desactivar',{
                         'id': idAjusteNegativos
                     }).then(function (response) {
-                        me.listarAlmacenes();
+                        me.listarAjusteNegativos();
                         swalWithBootstrapButtons.fire(
                             'Desactivado!',
                             'El registro a sido desactivado Correctamente',
@@ -470,6 +519,7 @@
                 }
                 })
             },
+            
             activarAjusteNegativos(idAjusteNegativos){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
@@ -492,7 +542,7 @@
                      axios.put('/ajustes-negativo/activar',{
                         'id': idAjusteNegativos
                     }).then(function (response) {
-                        me.listarAlmacenes();
+                        me.listarAjusteNegativos();
                         swalWithBootstrapButtons.fire(
                             'Activado!',
                             'El registro a sido Activado Correctamente',
@@ -515,6 +565,11 @@
                     ) */
                 }
                 })
+            },
+            selectAll: function (event) {
+                setTimeout(function () {
+                    event.target.select()
+                }, 0)
             },
 
        },

@@ -50,13 +50,13 @@
                            
                                 <td>
                                  
-                                    <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',ajusteNegaticos)">
+                                    <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',AjusteNegativos)">
                                        <i class="icon-pencil"></i>    
                                     </button> &nbsp;
                                     <button v-if="AjusteNegativos.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAjusteNegativos(AjusteNegativos.id)" >
                                         <i class="icon-trash"></i>
                                     </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAjusteNegativo(AjusteNegativos.id)" >
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAjusteNegativos(AjusteNegativos.id)" >
                                         <i class="icon-check"></i>
                                     </button>
                                     
@@ -179,9 +179,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
-                    <button type="button"  class="btn btn-primary" @click="registrorAjusteNegativo()" >Guardar</button>
+                    <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrorAjusteNegativo()" :disabled="!sicompleto" >Guardar</button>
                     <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarAjusteNegativo()">Actualizar</button>
                    
+                    
                 </div>
                 </div>
                 
@@ -231,8 +232,10 @@
       watch:{
         ProductoLineaIngresoSeleccionado:function(newValue){
             if (newValue > 0 ) {
-               
+               if (this.tipoAccion === 1) {
                 this.cantidadS=0;
+               } 
+               
             let productoSeleccionado=this.arrayProductoLineaIngreso.find(element=>element.id === newValue);
           if (productoSeleccionado) {
             this.cantidadProductoLineaIngreso=productoSeleccionado.cantidad;
@@ -253,7 +256,10 @@
 
         cantidadS: function (valor) {
             if (valor > this.cantidadProductoLineaIngreso) {
-                this.cantidadS = 0;
+                if (this.tipoAccion === 1) {
+                this.cantidadS=0;
+               } 
+               
                 Swal.fire(
                       'No puede ingresar un número mayor al stock actual',
                         'Haga click en Ok',
@@ -356,6 +362,7 @@
                     case 'registrar':
                     {
                         me.tituloModal='Ajuste de negativos'
+                        me.ProductoLineaIngresoSeleccionado=0;
                         me.ProductoLineaIngreso=0;   
                         me.TiposSeleccionado=0; 
                         me.cambiodeEstado='';
@@ -371,11 +378,18 @@
                     }
                     case 'actualizar':
                         {   
-                        me.tituloModal='Ajuste de negativos'
-                       
-
-                            me.tipoAccion=2;
-                            me.classModal.openModal('registrar');
+                        me.tituloModal='Actualizacion Datos del Almacen';
+                        me.TiposSeleccionado=data.id_tipo===null?0:data.id_tipo;
+                        me.ProductoLineaIngresoSeleccionado=data.id_producto_linea===null?0:data.id_producto_linea;
+                        me.tipoAccion=2;
+                        me.codigo=data.codigo;
+                        me.linea=data.linea;
+                        me.producto=data.nombreProd,
+                        me.cantidadS=data.cantidad;
+                        me.descripcion=data.descripcion;
+                        me.fecha=data.fecha;
+                        me.idAjusteNegativos=data.id;
+                        me.classModal.openModal('registrar');
                             break;
                         }
                  
@@ -386,16 +400,13 @@
             cerrarModal(accion){
                 let me = this;
                 me.classModal.closeModal(accion);
-                me.ProductoLineaIngreso=0;   
-                me.TiposSeleccionado=0; 
-                me.cambiodeEstado='';
-                me.codigo='';
+              me.codigo='';
                 me.linea='';
                 me.producto='',
                 me.cantidadS='';
                 me.descripcion='';
                 me.fecha='';
-                tipoAccion=1;
+                me.tipoAccion=1;
                            
             },
         
@@ -419,7 +430,7 @@
                    'descripcion':me.descripcion,
                    'fecha':me.fecha,
                    'activo':1,
-                  
+                 
             }).then(function(response){
                     me.cerrarModal('registrar');
                     Swal.fire(
@@ -427,7 +438,8 @@
                         'Haga click en Ok',
                         'success'
                     )
-                    me.listarAjusteNegativos();
+                    
+                 me.listarAjusteNegativos();
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
@@ -437,17 +449,18 @@
             actualizarAjusteNegativo(){
                 let me =this;
                 axios.put('/ajustes-negativo/actualizar',{
-                    'id':me.idAjusteNegativos,
-                    'codigo':me.codigo,
+                    'id_tipo':me.TiposSeleccionado,
+                   'id_producto_linea':me.ProductoLineaIngresoSeleccionado,
+                   'codigo':me.codigo,
                    'linea':me.linea,
                    'producto':me.producto,
                    'cantidad':me.cantidadS,
-                   'tipo':me.TiposSeleccionado,
                    'descripcion':me.descripcion,
                    'fecha':me.fecha,
+                   'activo':1,
                 
                 }).then(function (response) {
-                    me.listarAlmacenes();
+                    me.listarAjusteNegativos();
                     Swal.fire(
                         'Actualizado Correctamente!',
                         'El registro a sido actualizado Correctamente',

@@ -126,6 +126,9 @@ class AlmAjusteNegativoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    /**
+ * @method POST
+ */
     public function store(Request $request)
     {
         $ajusteNegativo=new Alm_AjusteNegativo();

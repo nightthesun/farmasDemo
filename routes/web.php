@@ -15,7 +15,7 @@ use App\Http\Controllers\AdmRubroController;
 use App\Http\Controllers\AdmUserController;
 use App\Http\Controllers\AdmUserRoleSucursalController;
 use App\Http\Controllers\AdmVentanaModuloController;
-use App\Http\Controllers\AlmAjusteNegativoController;
+use App\Http\Controllers\InvAjusteNegativoController;
 use App\Http\Controllers\AlmAlmacenController;
 use App\Http\Controllers\AlmCodificacionController;
 use App\Http\Controllers\AlmIngresoProductoController;
@@ -347,17 +347,31 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get('/almacen/listaralmacenes',[AlmAlmacenController::class,'listaralmacenes']);
 
     
-    Route::get('/ajustes-negativo',[AlmAjusteNegativoController::class,'index']);
-    Route::get('/ajustes-negativo/listarTipo',[AlmAjusteNegativoController::class,'listarTipo']);
-    Route::get('/ajustes-negativo/listarProductoLineaIngreso',[AlmAjusteNegativoController::class,'listarProductoLineaIngreso']);
-    Route::post('/ajustes-negativo/registrar', [AlmAjusteNegativoController::class,'store']);
-    Route::put('/ajustes-negativo/actualizar', [AlmAjusteNegativoController::class,'update']);
-    Route::put('/ajustes-negativo/desactivar', [AlmAjusteNegativoController::class,'desactivar']);
-    Route::put('/ajustes-negativo/activar', [AlmAjusteNegativoController::class,'activar']);
+    /////////////////////////////////////////////Inventario///////////////////////////////////////////////////
     
+    Route::get('/ajustes-negativo',[InvAjusteNegativoController::class,'index']);
+    Route::get('/ajustes-negativo/listarTipo',[InvAjusteNegativoController::class,'listarTipo']);
+    Route::get('/ajustes-negativo/listarProductoLineaIngreso',[InvAjusteNegativoController::class,'listarProductoLineaIngreso']);
+    Route::post('/ajustes-negativo/registrar', [InvAjusteNegativoController::class,'store']);
+    Route::put('/ajustes-negativo/actualizar', [InvAjusteNegativoController::class,'update']);
+    Route::put('/ajustes-negativo/desactivar', [InvAjusteNegativoController::class,'desactivar']);
+    Route::put('/ajustes-negativo/activar', [InvAjusteNegativoController::class,'activar']);
+    Route::get('/ajustes-negativo/listarSucursal', [InvAjusteNegativoController::class,'listarSucursal']); 
+    
+    Route::get('/ajustes-positivo',[InvAjusteNegativoController::class,'index']);
+    Route::get('/ajustes-positivo/listarTipo',[InvAjusteNegativoController::class,'listarTipo']);
+    Route::get('/ajustes-positivo/listarProductoLineaIngreso',[InvAjusteNegativoController::class,'listarProductoLineaIngreso']);
+    Route::post('/ajustes-positivo/registrar', [InvAjusteNegativoController::class,'store']);
+    Route::put('/ajustes-positivo/actualizar', [InvAjusteNegativoController::class,'update']);
+    Route::put('/ajustes-positivo/desactivar', [InvAjusteNegativoController::class,'desactivar']);
+    Route::put('/ajustes-positivo/activar', [InvAjusteNegativoController::class,'activar']);
+    Route::get('/ajustes-positivo/listarSucursal', [InvAjusteNegativoController::class,'listarSucursal']);
     //--------prueba-----
     Route::get('/prueba',[PruebaDelModeloController::class,'index']);
-    //-------------------
+
+
+
+
 
     //Ingreso de productos al almacen
     Route::get('/almacen/ingreso-producto',[AlmIngresoProductoController::class,'index']);

@@ -54,8 +54,10 @@ createApp ({
     .component('almacen-component', require('./components/almacenes/AlmacenComponent.vue').default)
     .component('ingreso-producto-component', require('./components/almacenes/IngresoProductoComponent.vue').default)
     .component('nuevo-almacen-component', require('./components/almacenes/NuevoAlmacenComponent.vue').default)
-    .component('ajuste-negativo-component', require('./components/almacenes/AjusteNegativoComponent.vue').default)
-
+    
+    //Inventario 
+    .component('ajuste-negativo-component', require('./components/inventario/AjusteNegativoComponent.vue').default)
+    .component('ajuste-positivo-component', require('./components/inventario/AjustePositivoComponent.vue').default)
     .component('prueba-component', require('./components/almacenes/PruebaComponent.vue').default)
   
    // .component('ajustesNeg-component', require('./components/almacenes/AjusteNegativoComponent.vue').default)

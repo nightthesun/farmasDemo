@@ -332,9 +332,7 @@
        methods :{
         sucursalFiltro(){
 
-          
-
-                let me=this;
+               let me=this;
                 var url='/ajustes-negativo/listarSucursal';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
@@ -481,6 +479,7 @@
                     )
                     
                  me.listarAjusteNegativos();
+                 me.sucursalFiltro();
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
@@ -503,6 +502,7 @@
                 
                 }).then(function (response) {
                     me.listarAjusteNegativos();
+                 me.sucursalFiltro();
                     Swal.fire(
                         'Actualizado Correctamente!',
                         'El registro a sido actualizado Correctamente',

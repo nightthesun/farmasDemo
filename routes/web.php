@@ -346,6 +346,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::put('/almacen/activar', [AlmAlmacenController::class,'activar']);
     Route::get('/almacen/listaralmacenes',[AlmAlmacenController::class,'listaralmacenes']);
 
+    
     Route::get('/ajustes-negativo',[AlmAjusteNegativoController::class,'index']);
     Route::get('/ajustes-negativo/listarTipo',[AlmAjusteNegativoController::class,'listarTipo']);
     Route::get('/ajustes-negativo/listarProductoLineaIngreso',[AlmAjusteNegativoController::class,'listarProductoLineaIngreso']);
@@ -353,15 +354,6 @@ Route::group(['middleware'=>'auth'],function(){
     Route::put('/ajustes-negativo/actualizar', [AlmAjusteNegativoController::class,'update']);
     Route::put('/ajustes-negativo/desactivar', [AlmAjusteNegativoController::class,'desactivar']);
     Route::put('/ajustes-negativo/activar', [AlmAjusteNegativoController::class,'activar']);
-    Route::get('/ajustes-negativo/listarSucursal', [AlmAjusteNegativoController::class,'listarSucursal']);
-    
-    Route::get('/ajustes-positivo',[AlmAjustePositivoController::class,'index']);
-    Route::get('/ajustes-positivo/listarTipo',[AlmAjustePositivoController::class,'listarTipo']);
-    Route::get('/ajustes-positivo/listarProductoLineaIngreso',[AlmAjustePositivoController::class,'listarProductoLineaIngreso']);
-    Route::post('/ajustes-posotivo/registrar', [AlmAjustePositivoController::class,'store']);
-    Route::put('/ajustes-positivo/actualizar', [AlmAjustePositivoController::class,'update']);
-    Route::put('/ajustes-positivo/desactivar', [AlmAjustePositivoController::class,'desactivar']);
-    Route::put('/ajustes-positivo/activar', [AlmAjustePositivoController::class,'activar']);
     
     //--------prueba-----
     Route::get('/prueba',[PruebaDelModeloController::class,'index']);

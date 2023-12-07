@@ -31,7 +31,6 @@ class AlmAjusteNegativoController extends Controller
                                 or aan.producto like '%".$valor."%'
                                 or pte.nombre like '%".$valor."%' 
                                 or aan.descripcion like '%".$valor."%'
-                              
                                )";
                     }
                     else
@@ -58,7 +57,6 @@ class AlmAjusteNegativoController extends Controller
                         'aan.id_tipo as id_tipo',
                         'pte.nombre as nombreTipo',
                         'aan.fecha as fecha',
-                        
                         
                         'aan.created_at as fecha_creacion',
                         'aan.activo as activo')
@@ -145,7 +143,7 @@ class AlmAjusteNegativoController extends Controller
         $ajusteNegativo->descripcion=$request->descripcion;
         $ajusteNegativo->fecha=$request->fecha;
         $ajusteNegativo->activo=$request->activo;
-        $ajusteNegativo->id_sucursal=$request->id_sucursal;
+      
         $ajusteNegativo->save();
       
     }
@@ -180,27 +178,6 @@ class AlmAjusteNegativoController extends Controller
        return $productos; 
     }
 
-    public function listarSucursal(){
-        
-        $sucursales = DB::table('prod__productos as pp')
-        ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
-        ->join('alm__ingreso_producto as aip', 'aip.id_prod_producto', '=', 'pp.id')
-        ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
-        ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-        ->select(
-            'ass.id AS id_sucursal',
-            'ass.razon_social',
-            'pp.codigo as codigoProducto'
-        )
-        ->distinct('ass.id')
-        //->orderBy('pp.nombre', 'asc')
-        ->get();
-    
-    return $sucursales;
-    
-    }
-
-
     public function listarTipo(){
         $productoTipo = DB::table('prod__tipo_entradas')
         ->select(DB::raw('MIN(id) as id'), 'nombre')
@@ -230,19 +207,15 @@ class AlmAjusteNegativoController extends Controller
      */
     public function update(Request $request, Alm_AjusteNegativo $alm_AjusteNegativo)
     {
-        
         $updateAjusteNegativo=Alm_AjusteNegativo::find($request->id);
         $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
-        $updateAjusteNegativo->id_tipo=$request->id_tipo;
-       $updateAjusteNegativo->linea=$request->id_producto_linea;
-       $updateAjusteNegativo->codigo=$request->codigo;
+        $updateAjusteNegativo->codigo=$request->codigo;
         $updateAjusteNegativo->linea=$request->linea;
         $updateAjusteNegativo->producto=$request->producto;
         $updateAjusteNegativo->cantidad=$request->cantidad;
-       
+        $updateAjusteNegativo->tipo=$request->tipo;
         $updateAjusteNegativo->descripcion=$request->descripcion;
         $updateAjusteNegativo->fecha=$request->fecha;
-        $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
        
         $updateAjusteNegativo->save();
     }

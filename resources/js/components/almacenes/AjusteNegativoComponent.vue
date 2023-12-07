@@ -18,25 +18,17 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar" @key.enter="listarAjusteNegativos(1)">
                                 <button type="submit" class="btn btn-primary" @click="listarAjusteNegativos(1)"><i class="fa fa-search" ></i> Buscar</button>
-                                
+                           
                                     
                             </div>
-                            
                         </div>
-                        <div class="col-md-4">
-                                    
-                                    <select name="" id="" v-model="buscarF" class="form-control">
-                                        <option v-bind:value="0" disabled>Buscar por local...</option>
-                                        <option v-for="sucursal in arraySucursal" :key="ProductoLineaIngreso.id" v-bind:value="sucursal.id" v-text="'Sucursal:'+sucursal.razon_social " @key.enter="listarAjusteNegativos(1)"></option>
-                                    </select>
-                                  </div>
                     </div>
-              
-                        <table class="table table-bordered table-striped table-sm table-responsive">
+          
+                    <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th>Opciones</th>
@@ -55,44 +47,46 @@
                         <tbody>
                          <!--botones de opciones-->   
                           <tr v-for="AjusteNegativos  in arrayAjusteNegativos" :key="AjusteNegativos.id">
-                              <td>
+                           
+                                <td>
                                  
-                                 <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',AjusteNegativos)">
-                                    <i class="icon-pencil"></i>    
-                                 </button> &nbsp;
-                                 <button v-if="AjusteNegativos.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAjusteNegativos(AjusteNegativos.id)" >
-                                     <i class="icon-trash"></i>
-                                 </button>
-                                 <button v-else type="button" class="btn btn-info btn-sm" @click="activarAjusteNegativos(AjusteNegativos.id)" >
-                                     <i class="icon-check"></i>
-                                 </button>
-                              
-                             </td>
-                             <td v-text="AjusteNegativos.nombre_usuario"></td>
-                             <td v-text="AjusteNegativos.codigo"></td>
-                             <td v-text="AjusteNegativos.linea"></td>
-                             <td v-text="AjusteNegativos.nombreProd"></td>
-                             <td v-text="AjusteNegativos.cantidad"></td>
-                             <td v-text="AjusteNegativos.nombreTipo"></td>
-                             <td v-text="AjusteNegativos.descripcion"></td>
-                             <td v-text="AjusteNegativos.fecha"></td>
-                        
-                             <td>
-                                 <div v-if="AjusteNegativos.activo==1">
-                                     <span class="badge badge-success">Activo</span>
-                                 </div>
-                                 <div v-else>
-                                     <span class="badge badge-warning">Desactivado</span>
-                                 </div>
+                                    <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',AjusteNegativos)">
+                                       <i class="icon-pencil"></i>    
+                                    </button> &nbsp;
+                                    <button v-if="AjusteNegativos.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAjusteNegativos(AjusteNegativos.id)" >
+                                        <i class="icon-trash"></i>
+                                    </button>
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAjusteNegativos(AjusteNegativos.id)" >
+                                        <i class="icon-check"></i>
+                                    </button>
+                                    
+                                   
                                  
-                             </td>
+                                </td>
+                                <td v-text="AjusteNegativos.nombre_usuario"></td>
+                                <td v-text="AjusteNegativos.codigo"></td>
+                                <td v-text="AjusteNegativos.linea"></td>
+                                <td v-text="AjusteNegativos.nombreProd"></td>
+                                <td v-text="AjusteNegativos.cantidad"></td>
+                                <td v-text="AjusteNegativos.nombreTipo"></td>
+                                <td v-text="AjusteNegativos.descripcion"></td>
+                                <td v-text="AjusteNegativos.fecha"></td>
+                                <td>
+                                    <div v-if="AjusteNegativos.activo==1">
+                                        <span class="badge badge-success">Activo</span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="badge badge-warning">Desactivado</span>
+                                    </div>
+                                    
+                                </td>
                           
-                                
+                           
+                            
                            </tr>
                         </tbody>
-                    </table>      
-           
-                   <nav>
+                    </table>
+                    <nav>
                         <ul class="pagination">
                             <li class="page-item" v-if="pagination.current_page > 1">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
@@ -143,7 +137,6 @@
                                     <input type="text"  v-model="linea" hidden>
                                     <input type="text"  v-model="producto" hidden>
                                     <input type="text"  v-model="fecha" hidden>
-                                    <input type="text"  v-model="id_sucursal" hidden>
                                      </div>
                             </div>
                                    <div class="form-group row">
@@ -234,14 +227,8 @@
                 idAjusteNegativos:0,
                 offset:3,
                 tipoAccion:1,
-                id_sucursal:'',
-                arraySucursal:[],
-                sucursalSeleccionada:0,
-             
-
             }
         },
-    
       watch:{
         ProductoLineaIngresoSeleccionado:function(newValue){
             if (newValue > 0 ) {
@@ -256,7 +243,6 @@
            this.linea=productoSeleccionado.linea;
           this.producto=productoSeleccionado.name;
           this.fecha=productoSeleccionado.fechaIngreso;
-          this.id_sucursal=productoSeleccionado.id_sucursal;
             console.log( productoSeleccionado.cantidad);
                 } else {
     console.log("No matching element found in arrayProductoLineaIngreso.");
@@ -324,31 +310,7 @@
         },
       
        methods :{
-        sucursalFiltro(){
-
-            let me=this;
-               var url='/ajustes-negativo?page='+page+'&buscar='+me.buscar;
-               axios.get(url)
-               .then(function(response){
-                    var respuesta =  response.data;
-                    me.pagination = respuesta.pagination;
-                    me.arrayAjusteNegativos = respuesta.query_ajuste_negativos.data;
-               }).catch(function (error) {
-                    error401(error);
-               }); 
-
-                let me=this;
-                var url='/ajustes-negativo/listarSucursal';
-                axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    me.arraySucursal=respuesta;
-                    console.log( me.arraySucursal);
-                })
-                .catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
-            },
+        
         
         
         ajustesNegativos(){
@@ -411,7 +373,6 @@
                         me.cantidadS='';
                         me.descripcion='';
                         me.fecha='';
-                        me.id_sucursal='';
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -428,7 +389,6 @@
                         me.descripcion=data.descripcion;
                         me.fecha=data.fecha;
                         me.idAjusteNegativos=data.id;
-                        me.id_sucursal=data.id_sucursal;
                         me.classModal.openModal('registrar');
                             break;
                         }
@@ -440,22 +400,19 @@
             cerrarModal(accion){
                 let me = this;
                 me.classModal.closeModal(accion);
-                me.ProductoLineaIngresoSeleccionado=0;
-                me.TiposSeleccionado=0; 
+              me.codigo='';
+                me.linea='';
+                me.producto='',
+                me.cantidadS='';
+                me.descripcion='';
+                me.fecha='';
                 me.tipoAccion=1;
-                        me.codigo='';
-                        me.linea='';
-                        me.producto='',
-                        me.cantidadS='';
-                        me.descripcion='';
-                        me.fecha='';
-                        me.id_sucursal='';
                            
             },
         
             registrorAjusteNegativo(){
                 let me =  this;
-                if (me.codigo === "" || me.linea  === "" || me.producto ===  "" || me.cantidadS === "" || me.TiposSeleccionado === "" || me.descripcion === "" || me.fecha === "" ) {
+                if (me.codigo === "" || me.linea  === "" || me.producto ===  "" || me.cantidadS === "" || me.TiposSeleccionado === "" || me.descripcion === "" || me.fecha === ""  ) {
                     Swal.fire(
                         'No puede ingresar valor nulos  o vacios',
                         'Haga click en Ok',
@@ -473,7 +430,6 @@
                    'descripcion':me.descripcion,
                    'fecha':me.fecha,
                    'activo':1,
-                   'id_sucursal':me.id_sucursal,
                  
             }).then(function(response){
                     me.cerrarModal('registrar');
@@ -493,16 +449,15 @@
             actualizarAjusteNegativo(){
                 let me =this;
                 axios.put('/ajustes-negativo/actualizar',{
-                    'id': me.idAjusteNegativos,
-                   'id_tipo':me.TiposSeleccionado,
+                    'id_tipo':me.TiposSeleccionado,
                    'id_producto_linea':me.ProductoLineaIngresoSeleccionado,
-                  'codigo':me.codigo,
+                   'codigo':me.codigo,
                    'linea':me.linea,
-                  'producto':me.producto,
-                  'cantidad':me.cantidadS,
+                   'producto':me.producto,
+                   'cantidad':me.cantidadS,
                    'descripcion':me.descripcion,
-                  'fecha':me.fecha,                  
-                  'id_sucursal':me.id_sucursal,
+                   'fecha':me.fecha,
+                   'activo':1,
                 
                 }).then(function (response) {
                     me.listarAjusteNegativos();
@@ -639,8 +594,6 @@
         this.ajustesNegativos();
         this.ProductoLineaIngreso();
         this.cambiodeEstado();
-        this.sucursalFiltro();
-       
         
        }
      }

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inv_AjusteNegativo;
+use App\Models\Alm_AjusteNegativo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class InvAjusteNegativoController extends Controller
+class AlmAjusteNegativoController extends Controller
 {
-            /**
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -47,7 +47,7 @@ class InvAjusteNegativoController extends Controller
                     }
     
                 }
-                    $query_ajuste_negativos = DB::table('inv__ajuste_negativos as aan')
+                    $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
                         ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
                         ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
                         ->select('aan.id as id',
@@ -86,7 +86,7 @@ class InvAjusteNegativoController extends Controller
             ];
         }else {
 
-            $query_ajuste_negativos = DB::table('inv__ajuste_negativos as aan')
+            $query_ajuste_negativos = DB::table('alm__ajuste_negativos as aan')
             ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
             ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
             ->select('aan.id as id',
@@ -140,7 +140,7 @@ class InvAjusteNegativoController extends Controller
  */
     public function store(Request $request)
     {
-        $ajusteNegativo=new Inv_AjusteNegativo();
+        $ajusteNegativo=new Alm_AjusteNegativo();
         $ajusteNegativo->id_usuario = auth()->user()->id;
         $ajusteNegativo->usuario = auth()->user()->name;
         $ajusteNegativo->id_tipo=$request->id_tipo;
@@ -189,7 +189,7 @@ class InvAjusteNegativoController extends Controller
 
     public function listarSucursal(){
        
-        $sucursales = DB::table('inv__ajuste_negativos as aan')
+        $sucursales = DB::table('alm__ajuste_negativos as aan')
         ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
         ->select('aan.id_sucursal', 'ass.razon_social')
         ->distinct('ass.id')
@@ -212,7 +212,7 @@ class InvAjusteNegativoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Inv_AjusteNegativo $alm_AjusteNegativo)
+    public function show(Alm_AjusteNegativo $alm_AjusteNegativo)
     {
         //
     }
@@ -220,7 +220,7 @@ class InvAjusteNegativoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Inv_AjusteNegativo $alm_AjusteNegativo)
+    public function edit(Alm_AjusteNegativo $alm_AjusteNegativo)
     {
         //
     }
@@ -228,10 +228,10 @@ class InvAjusteNegativoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Inv_AjusteNegativo $alm_AjusteNegativo)
+    public function update(Request $request, Alm_AjusteNegativo $alm_AjusteNegativo)
     {
         
-        $updateAjusteNegativo=Inv_AjusteNegativo::find($request->id);
+        $updateAjusteNegativo=Alm_AjusteNegativo::find($request->id);
         $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
         $updateAjusteNegativo->id_tipo=$request->id_tipo;
        $updateAjusteNegativo->linea=$request->id_producto_linea;
@@ -250,18 +250,18 @@ class InvAjusteNegativoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Inv_AjusteNegativo $alm_AjusteNegativo)
+    public function destroy(Alm_AjusteNegativo $alm_AjusteNegativo)
     {
         //
     }
     public function desactivar(Request $request){
-        $updateAjusteNegativo = Inv_AjusteNegativo::findOrFail($request->id);
+        $updateAjusteNegativo = Alm_AjusteNegativo::findOrFail($request->id);
         $updateAjusteNegativo->activo=0;
         $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
         $updateAjusteNegativo->save();
     }
     public function activar(Request $request){
-        $updateAjusteNegativo = Inv_AjusteNegativo::findOrFail($request->id);
+        $updateAjusteNegativo = Alm_AjusteNegativo::findOrFail($request->id);
         $updateAjusteNegativo->activo=1;
         $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
         $updateAjusteNegativo->save();

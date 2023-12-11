@@ -12,18 +12,39 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Ajustes Negativos
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')" >
+                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');ProductoLineaIngreso()" :disabled="sucursalSeleccionada==0" >
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
+                    <span v-if="sucursalSeleccionada==0" class="error">&nbsp; &nbsp;Debe Seleccionar una sucursal</span>
                 </div>
                 <div class="card-body">
+                    <div class="form-group row">
+                        <div class="col-md-2" style="text-align:center">
+                            <label for="" >Sucursales Disponibles:</label>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <select class="form-control" @change="listarAjusteNegativos(0)" v-model="sucursalSeleccionada">
+                                    <option value="0" disabled>Seleccionar...</option>
+                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id" :value="sucursal.id" v-text="(sucursal.cod === null?'':sucursal.cod+' -> ') +sucursal.cod + ' ' +sucursal.razon_social"></option>
+                                </select>                              
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar"  @keyup.enter="listarAjusteNegativos(1)">
+                                <button type="submit" class="btn btn-primary" @click="listarAjusteNegativos(1)"><i class="fa fa-search" ></i> Buscar</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!---codigo antiguo-->
                     <div class="form-group row">
                         <div class="col-md-8">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar" @keyup.enter="listarAjusteNegativos(1)">
                                 <button type="submit" class="btn btn-primary" @click="listarAjusteNegativos(1)"><i class="fa fa-search" ></i> Buscar</button>
-                                
-                                    
                             </div>
                             
                         </div>
@@ -36,7 +57,7 @@
                                     </select>
                                   </div>
                     </div>
-              
+              <!---------------------------------------------------------------->
                         <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -115,7 +136,7 @@
             <div class="modal-dialog modal-primary modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h4 class="modal-title">{{ tituloModal }}</h4>
+                    <h4 class="modal-title">{{ tituloModal }} </h4>
                     <button  type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
                         <span aria-hidden="true">x</span>
                     </button>
@@ -126,8 +147,25 @@
                         Todos los campos con (*) son requeridos
                     </div>
                     <form action=""  class="form-horizontal">
+
+                                    <!-- tab para los envases del producto -->
+                                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link active" id="pills-envase-primario-tab" data-toggle="pill" href="#pills-envase-primario" role="tab" aria-controls="pills-home" aria-selected="true">Envase Primario</a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="pills-envase-secundario-tab" data-toggle="pill" href="#pills-envase-secundario" role="tab" aria-controls="pills-profile" aria-selected="false">Envase Secundario</a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="pills-envase-terciario-tab" data-toggle="pill" href="#pills-envase-terciario" role="tab" aria-controls="pills-contact" aria-selected="false">Envase Terciario</a>
+                                    </li>
+                                </ul>
+
                         <!-- insertar datos -->
-                        <div class="container">
+                        <div class="tab-content" id="pills-tabContent">
+                            <div class="tab-pane fade show active" id="pills-envase-primario" role="tabpanel" aria-labelledby="pills-envase-primario-tab">
+                                <strong>Envase Primario:</strong>
+                                <div class="container">
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Producto
@@ -137,14 +175,16 @@
                                     
                                     <select name="" id="" v-model="ProductoLineaIngresoSeleccionado" class="form-control" @change="cambioDeEstado">
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
-                                        <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id" v-bind:value="ProductoLineaIngreso.id" v-text="'cod:'+ProductoLineaIngreso.codigoProducto+' Nom:'+ProductoLineaIngreso.name +' codInTer:'+ProductoLineaIngreso.codigointernacional+' Lote:'+ProductoLineaIngreso.lote+' FIng:'+ProductoLineaIngreso.fechaIngreso+' Suc:'+ProductoLineaIngreso.nombreSucursal+' Stock:'+ProductoLineaIngreso.cantidad"></option>
+                                        <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-'+ProductoLineaIngreso.cantidad_dispenser_p +'-'+ProductoLineaIngreso.nombre_farmaceutica+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+ProductoLineaIngreso.fecha_vencimiento+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
                                     </select>
+                                    <input type="text" v-model="sucursalSeleccionada" hidden>
                                     <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
                                     <input type="text"  v-model="codigo" hidden>
                                     <input type="text"  v-model="linea" hidden>
                                     <input type="text"  v-model="producto" hidden>
                                     <input type="text"  v-model="fecha" hidden>
                                     <input type="text"  v-model="id_sucursal" hidden>
+                                    <input type="text"  v-model="dato1" hidden>
                                      </div>
                             </div>
                                    <div class="form-group row">
@@ -180,8 +220,18 @@
                                       </div>
                                   </div> 
                             
-                        </div>
-                       
+                        </div>    
+                            </div>
+                            <div class="tab-pane fade" id="pills-envase-secundario" role="tabpanel" aria-labelledby="ppills-envase-secundario">
+                                <strong>Envase Secundario:</strong>
+                                      
+                            </div>
+                            <div class="tab-pane fade " id="pills-envase-terciario" role="tabpanel" aria-labelledby="pills-envase-terciario">
+                                <strong>Envase Terciario:</strong>
+                                      
+                            </div>
+                        </div>        
+ 
                     </form>
 
                 </div>
@@ -221,6 +271,8 @@
                 id_tipo:'',
                 arrayProductoLineaIngreso:[],
                 ProductoLineaIngresoSeleccionado:0,
+                ProductoLineaIngresoSeleccionadoDos:0,
+                ProductoLineaIngresoSeleccionadoTres:0,
                 id_producto_linea:'',
                 cantidadS:'',
                 listarTipo:0,
@@ -230,7 +282,11 @@
                 linea:'',
                 producto:'',
                 fecha:'',
+                dato1:1,
+                dato2:2,
+                dato3:3,
                 arrayAjusteNegativos:[],
+     
                 buscar:'',
                 idAjusteNegativos:0,
                 offset:3,
@@ -238,6 +294,9 @@
                 id_sucursal:'',
                 arraySucursal:[],
                 sucursalSeleccionada:0,
+                sucuralName:'',
+                sucursalId:0,
+
              
 
             }
@@ -249,16 +308,17 @@
                if (this.tipoAccion === 1) {
                 this.cantidadS=0;
                } 
-               
-            let productoSeleccionado=this.arrayProductoLineaIngreso.find(element=>element.id === newValue);
-          if (productoSeleccionado) {
-            this.cantidadProductoLineaIngreso=productoSeleccionado.cantidad;
-             this.codigo=productoSeleccionado.codigoProducto;
-           this.linea=productoSeleccionado.linea;
-          this.producto=productoSeleccionado.name;
-          this.fecha=productoSeleccionado.fechaIngreso;
-          this.id_sucursal=productoSeleccionado.id_sucursal;
-            console.log( productoSeleccionado.cantidad);
+               console.log("++++"+this.arrayProductoLineaIngreso);
+            let productoSeleccionado=this.arrayProductoLineaIngreso.find(element=>element.id_ingreso === newValue);
+         console.log("***"+productoSeleccionado);
+            if (productoSeleccionado) {
+           this.cantidadProductoLineaIngreso=productoSeleccionado.stock_ingreso;
+          this.codigo=productoSeleccionado.codigo_producto;
+         this.linea=productoSeleccionado.nombre_linea;
+         this.producto=productoSeleccionado.nombre;
+        this.fecha=productoSeleccionado.fecha_ingreso;
+         this.id_sucursal=productoSeleccionado.id_sucursal;
+       
                 } else {
     console.log("No matching element found in arrayProductoLineaIngreso.");
         }
@@ -370,9 +430,12 @@
                 
           ProductoLineaIngreso(){
                 let me=this;
-                var url='/ajustes-negativo/listarProductoLineaIngreso';
+                let respuesta1=me.arraySucursal.find(element=>element.id==me.sucursalSeleccionada);
+                var url='/ajustes-negativo/listarProductoLineaIngreso?respuesta1=' +this.sucursalSeleccionada;
+                console.log(url);
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
+                    
                     me.arrayProductoLineaIngreso=respuesta;
         
                     console.log( me.arrayProductoLineaIngreso);
@@ -391,12 +454,14 @@
 
         abrirModal(accion,data= []){
             let me=this;
-                switch(accion){
+            let respuesta=me.arraySucursal.find(element=>element.id==me.sucursalSeleccionada);
+              
+            switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Ajuste de negativos'
+                        me.tituloModal='Rejistro para Ajuste de negativos en la sucursal: '+respuesta.razon_social;
                         me.ProductoLineaIngresoSeleccionado=0;
-                        me.ProductoLineaIngreso=0;   
+                        me.dato1=1;   
                         me.TiposSeleccionado=0; 
                         me.cambiodeEstado='';
                         me.tipoAccion=1;

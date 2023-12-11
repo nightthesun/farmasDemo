@@ -352,6 +352,9 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get('/ajustes-negativo',[InvAjusteNegativoController::class,'index']);
     Route::get('/ajustes-negativo/listarTipo',[InvAjusteNegativoController::class,'listarTipo']);
     Route::get('/ajustes-negativo/listarProductoLineaIngreso',[InvAjusteNegativoController::class,'listarProductoLineaIngreso']);
+    Route::get('/ajustes-negativo/listarProductoLineaIngresoDos',[InvAjusteNegativoController::class,'listarProductoLineaIngresoDos']);
+    Route::get('/ajustes-negativo/listarProductoLineaIngresoTres',[InvAjusteNegativoController::class,'listarProductoLineaIngresoTres']);
+    
     Route::post('/ajustes-negativo/registrar', [InvAjusteNegativoController::class,'store']);
     Route::put('/ajustes-negativo/actualizar', [InvAjusteNegativoController::class,'update']);
     Route::put('/ajustes-negativo/desactivar', [InvAjusteNegativoController::class,'desactivar']);

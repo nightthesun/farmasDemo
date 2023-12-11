@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Inv_AjusteNegativo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Alm_IngresoProducto;
+use SebastianBergmann\Environment\Console;
 
 class InvAjusteNegativoController extends Controller
 {
@@ -140,6 +142,7 @@ class InvAjusteNegativoController extends Controller
  */
     public function store(Request $request)
     {
+        
         $ajusteNegativo=new Inv_AjusteNegativo();
         $ajusteNegativo->id_usuario = auth()->user()->id;
         $ajusteNegativo->usuario = auth()->user()->name;
@@ -148,53 +151,175 @@ class InvAjusteNegativoController extends Controller
         $ajusteNegativo->codigo=$request->codigo;
         $ajusteNegativo->linea=$request->linea;
         $ajusteNegativo->producto=$request->producto;
-        $ajusteNegativo->cantidad=$request->cantidad;
+        //$ajusteNegativo->cantidad=$request->cantidad;
         $ajusteNegativo->descripcion=$request->descripcion;
         $ajusteNegativo->fecha=$request->fecha;
         $ajusteNegativo->activo=$request->activo;
         $ajusteNegativo->id_sucursal=$request->id_sucursal;
+
         $ajusteNegativo->save();
-      
+        $updateAjusteNegativo=Alm_IngresoProducto::find($request->id_producto);
+        $updateAjusteNegativo->stock_ingreso=$request->cantidad;
+        $updateAjusteNegativo->save();
+        
     }
 
 
 
-    public function listarProductoLineaIngreso(){
-        $productos = DB::table('prod__productos as pp')
-                ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
-                ->join('alm__ingreso_producto as aip', 'aip.id_prod_producto', '=', 'pp.id')
-                ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
-                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-                ->select(
-                'pp.id as id',
-                'pp.codigo as codigoProducto',
-                'pp.nombre as name',
-                'pp.codigointernacional as codigointernacional',
-                'pl.codigo as codigolinea',
-                'pl.nombre as linea',
-                'aip.cantidad as cantidad',
+    public function listarProductoLineaIngreso(Request $request){
+      $id = $request->query('respuesta1');
+        // dd($respuesta1); 
+        if ($id==0) {
+            return $id;
+        } else {
+
+            $productos = DB::table('alm__ingreso_producto as aip')
+            ->join('prod__productos as pp', 'aip.id_prod_producto', '=', 'pp.id')
+            ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispenserprimario')
+            ->join('prod__forma_farmaceuticas as ff', 'pp.idformafarmaceuticaprimario', '=', 'ff.id')
+            ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+            ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+            ->where('aip.stock_ingreso', '>', 0)
+            ->select(
+                'aip.id as id_ingreso',
+                'aip.id_prod_producto as id_producto',
                 'aip.lote as lote',
-                'aip.created_at as fechaIngreso',
+                'aip.cantidad as cantidad_ingreso',
+                'aip.stock_ingreso as stock_ingreso',
+                'aip.created_at as fecha_ingreso',
                 'aip.fecha_vencimiento as fecha_vencimiento',
-                'aa.codigo as codigoAlmacen',
-                'aa.id as id_almacen',
-                'ass.id as id_sucursal',
-                'ass.nombre_comercial as nombreSucursal'    
-                )
-        ->orderBy('pp.nombre','asc')
-        ->get();
+                'pp.nombre as nombre',
+                'pp.codigo as codigo_producto',
+                'pp.cantidadprimario as cantidad_dispenser_p',
+                'l.nombre as nombre_linea',
+                'pd.nombre as nombre_dispenser',
+                'ff.nombre as nombre_farmaceutica',
+                    'ass.id as id_sucursal'
+            )
+            ->whereRaw('aip.id = ?', [$id])
+            ->get();
+        
+
+     //       $productos = DB::table('prod__productos as pp')
+     //           ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
+     //           ->join('alm__ingreso_producto as aip', 'aip.id_prod_producto', '=', 'pp.id')
+     //           ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
+     //           ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+     //           ->select(
+     //           'pp.id as id',
+     //           'pp.codigo as codigoProducto',
+     //           'pp.nombre as name',
+    //          'pp.codigointernacional as codigointernacional',
+    //            'pl.codigo as codigolinea',
+    //            'pl.nombre as linea',
+    //            'aip.cantidad as cantidad',
+    //            'aip.lote as lote',
+    //            'aip.created_at as fechaIngreso',
+    //            'aip.fecha_vencimiento as fecha_vencimiento',
+    //            'aa.codigo as codigoAlmacen',
+    //            'aa.id as id_almacen',
+    //            'ass.id as id_sucursal',
+    //            'ass.nombre_comercial as nombreSucursal'    
+    //            )
+    //            ->whereRaw('ass.id = ?', [$id])
+    //    ->orderBy('pp.nombre','asc')
+    //    ->get();
         
        return $productos; 
+        }
+       
     }
 
-    public function listarSucursal(){
+    public function listarProductoLineaIngresoDos(Request $request){
+        $id = $request->query('respuesta1');
+          // dd($respuesta1); 
+          if ($id==0) {
+              return $id;
+          } else {
+  
+              $productos = DB::table('alm__ingreso_producto as aip')
+              ->join('prod__productos as pp', 'aip.id_prod_producto', '=', 'pp.id')
+              ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispensersecundario')
+              ->join('prod__forma_farmaceuticas as ff', 'pp.idformafarmaceuticasecundario', '=', 'ff.id')
+              ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+              ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
+              ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+              ->where('aip.stock_ingreso', '>', 0)
+              ->select(
+                  'aip.id as id_ingreso',
+                  'aip.id_prod_producto as id_producto',
+                  'aip.lote as lote',
+                  'aip.cantidad as cantidad_ingreso',
+                  'aip.stock_ingreso as stock_ingreso',
+                  'aip.created_at as fecha_ingreso',
+                  'aip.fecha_vencimiento as fecha_vencimiento',
+                  'pp.nombre as nombre',
+                  'pp.codigo as codigo_producto',
+                  'pp.cantidadsecundario as cantidad_dispenser_p',
+                  'l.nombre as nombre_linea',
+                  'pd.nombre as nombre_dispenser',
+                  'ff.nombre as nombre_farmaceutica',
+                  'ass.id as id_sucursal'
+              )
+              ->whereRaw('aip.id = ?', [$id])
+              ->get();
        
-        $sucursales = DB::table('inv__ajuste_negativos as aan')
-        ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
-        ->select('aan.id_sucursal', 'ass.razon_social')
-        ->distinct('ass.id')
-        // ->orderBy('pp.nombre', 'asc')
+         return $productos; 
+          }
+         
+      }
+
+      public function listarProductoLineaIngresoTres(Request $request){
+        $id = $request->query('respuesta1');
+          // dd($respuesta1); 
+          if ($id==0) {
+              return $id;
+          } else {
+  
+              $productos = DB::table('alm__ingreso_producto as aip')
+              ->join('prod__productos as pp', 'aip.id_prod_producto', '=', 'pp.id')
+              ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispenserterciario')
+              ->join('prod__forma_farmaceuticas as ff', 'pp.idformafarmaceuticaterciario', '=', 'ff.id')
+              ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+              ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
+              ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+              ->where('aip.stock_ingreso', '>', 0)
+              ->select(
+                  'aip.id as id_ingreso',
+                  'aip.id_prod_producto as id_producto',
+                  'aip.lote as lote',
+                  'aip.cantidad as cantidad_ingreso',
+                  'aip.stock_ingreso as stock_ingreso',
+                  'aip.created_at as fecha_ingreso',
+                  'aip.fecha_vencimiento as fecha_vencimiento',
+                  'pp.nombre as nombre',
+                  'pp.codigo as codigo_producto',
+                  'pp.cantidadterciario as cantidad_dispenser_p',
+                  'l.nombre as nombre_linea',
+                  'pd.nombre as nombre_dispenser',
+                  'ff.nombre as nombre_farmaceutica',
+                  'ass.id as id_sucursal'
+              )
+              ->whereRaw('aip.id = ?', [$id])
+              ->get();
+ 
+         return $productos; 
+          }
+         
+      }
+
+    public function listarSucursal(){
+        $sucursales = DB::table('adm__sucursals')
+        ->select('id','cod','razon_social')
+        ->orderby('id')
         ->get();
+        //$sucursales = DB::table('inv__ajuste_negativos as aan')
+        //->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
+        //->select('aan.id_sucursal', 'ass.razon_social')
+        //->distinct('ass.id')
+        //->orderBy('pp.nombre', 'asc')
+        //->get();
     
     return $sucursales;
     

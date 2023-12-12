@@ -140,9 +140,9 @@ class InvAjusteNegativoController extends Controller
     /**
  * @method POST
  */
-    public function store(Request $request)
+    public function store(Request $request, Alm_IngresoProducto $alm_AjusteNegativo)
     {
-        
+            
         $ajusteNegativo=new Inv_AjusteNegativo();
         $ajusteNegativo->id_usuario = auth()->user()->id;
         $ajusteNegativo->usuario = auth()->user()->name;
@@ -151,12 +151,11 @@ class InvAjusteNegativoController extends Controller
         $ajusteNegativo->codigo=$request->codigo;
         $ajusteNegativo->linea=$request->linea;
         $ajusteNegativo->producto=$request->producto;
-        //$ajusteNegativo->cantidad=$request->cantidad;
+        $ajusteNegativo->cantidad=$request->cantidad;
         $ajusteNegativo->descripcion=$request->descripcion;
         $ajusteNegativo->fecha=$request->fecha;
         $ajusteNegativo->activo=$request->activo;
         $ajusteNegativo->id_sucursal=$request->id_sucursal;
-
         $ajusteNegativo->save();
         $updateAjusteNegativo=Alm_IngresoProducto::find($request->id_producto);
         $updateAjusteNegativo->stock_ingreso=$request->cantidad;
@@ -199,34 +198,7 @@ class InvAjusteNegativoController extends Controller
             )
             ->whereRaw('aip.id = ?', [$id])
             ->get();
-        
-
-     //       $productos = DB::table('prod__productos as pp')
-     //           ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
-     //           ->join('alm__ingreso_producto as aip', 'aip.id_prod_producto', '=', 'pp.id')
-     //           ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
-     //           ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-     //           ->select(
-     //           'pp.id as id',
-     //           'pp.codigo as codigoProducto',
-     //           'pp.nombre as name',
-    //          'pp.codigointernacional as codigointernacional',
-    //            'pl.codigo as codigolinea',
-    //            'pl.nombre as linea',
-    //            'aip.cantidad as cantidad',
-    //            'aip.lote as lote',
-    //            'aip.created_at as fechaIngreso',
-    //            'aip.fecha_vencimiento as fecha_vencimiento',
-    //            'aa.codigo as codigoAlmacen',
-    //            'aa.id as id_almacen',
-    //            'ass.id as id_sucursal',
-    //            'ass.nombre_comercial as nombreSucursal'    
-    //            )
-    //            ->whereRaw('ass.id = ?', [$id])
-    //    ->orderBy('pp.nombre','asc')
-    //    ->get();
-        
-       return $productos; 
+     return $productos; 
         }
        
     }
@@ -370,6 +342,10 @@ class InvAjusteNegativoController extends Controller
         $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
        
         $updateAjusteNegativo->save();
+
+        $updateIngrePro=Alm_IngresoProducto::find($request->id_producto);
+        $updateIngrePro->stock_ingreso=$request->cantidad;
+        $updateIngrePro->save();
     }
 
     /**

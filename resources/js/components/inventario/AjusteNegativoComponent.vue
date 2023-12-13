@@ -26,7 +26,7 @@
                             <div class="input-group">
                                 <select class="form-control" @change="listarAjusteNegativos(0)" v-model="sucursalSeleccionada">
                                     <option value="0" disabled>Seleccionar...</option>
-                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id" :value="sucursal.id" v-text="(sucursal.cod === null?'':sucursal.cod+' -> ') +sucursal.cod + ' ' +sucursal.razon_social"></option>
+                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id" :value="sucursal.id" v-bind:value="sucursal.razon_social" v-text="'Sucursal:'+sucursal.razon_social "></option>
                                 </select>                              
                             </div>
                         </div>

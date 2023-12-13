@@ -282,18 +282,45 @@ class InvAjusteNegativoController extends Controller
       }
 
     public function listarSucursal(){
+       // $sucursales = DB::table('adm__sucursals')
+       // ->select('id','cod','razon_social')
+       // ->orderby('id')
+       // ->get();
+ 
         $sucursales = DB::table('adm__sucursals')
-        ->select('id','cod','razon_social')
-        ->orderby('id')
-        ->get();
-        //$sucursales = DB::table('inv__ajuste_negativos as aan')
-        //->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
-        //->select('aan.id_sucursal', 'ass.razon_social')
-        //->distinct('ass.id')
-        //->orderBy('pp.nombre', 'asc')
-        //->get();
-    
-    return $sucursales;
+        ->select('id as id_tienda', DB::raw('null as id_almacen'), 'cod as codigo', 'razon_social', DB::raw('null as sucursal'))
+        ->unionAll(
+            DB::table('alm__almacens as aa')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal')
+        )->get();
+
+
+        $jsonSucrusal = [];
+
+foreach ($sucursales as $key=>$sucursal) {
+    $elemento = [
+        'id' => $key,
+        'id_tienda' => $sucursal->id_tienda,
+        'id_almacen' => $sucursal->id_almacen,
+        'codigo' => $sucursal->codigo,
+        'razon_social' => $sucursal->razon_social,
+        'sucursal' => $sucursal->sucursal,
+    ];
+
+    $jsonSucrusal[] = $elemento;
+}
+//foreach ($jsonData as $elemento) {
+//    echo "ID: {$elemento['id']}<br>";
+//    echo "ID Tienda: {$elemento['id_tienda']}<br>";
+//    echo "ID Almacen: {$elemento['id_almacen']}<br>";
+//    echo "Código: {$elemento['codigo']}<br>";
+//    echo "Razón Social: {$elemento['razon_social']}<br>";
+//    echo "Sucursal: {$elemento['sucursal']}<br>";
+//    echo "------------------------<br>";
+//}
+//exit;
+    return $jsonSucrusal;
     
     }
 

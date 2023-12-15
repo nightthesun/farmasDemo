@@ -40,23 +40,7 @@
 
 
                     <!---codigo antiguo-->
-                    <div class="form-group row">
-                        <div class="col-md-8">
-                            <div class="input-group">
-                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar" @keyup.enter="listarAjusteNegativos(1)">
-                                <button type="submit" class="btn btn-primary" @click="listarAjusteNegativos(1)"><i class="fa fa-search" ></i> Buscar</button>
-                            </div>
-                            
-                        </div>
-                                <div class="col-md-4">
-                                    
-                                    <select name="" id="" v-model="sucursalSeleccionada" class="form-control" @change="listarAjusteNegativos(1)">
-                                        <option v-bind:value="0" disabled>Buscar por local...</option>
-                                        <option v-for="sucursal in arraySucursal" :key="sucursal.id" v-bind:value="sucursal.razon_social" v-text="'Sucursal:'+sucursal.razon_social " @key.enter="listarAjusteNegativos(1)"></option>
-                                         <option v-bind:value="0">Restablecer...</option>
-                                    </select>
-                                </div>
-                    </div>
+                   
               <!---------------------------------------------------------------->
                         <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>

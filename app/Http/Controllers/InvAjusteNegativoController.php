@@ -6,6 +6,8 @@ use App\Models\Inv_AjusteNegativo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Alm_IngresoProducto;
+use App\Models\Tda_IngresoProducto;
+use PhpParser\Node\Stmt\TryCatch;
 use SebastianBergmann\Environment\Console;
 
 class InvAjusteNegativoController extends Controller
@@ -35,6 +37,7 @@ class InvAjusteNegativoController extends Controller
                                 or pte.nombre like '%".$valor."%' 
                                 or aan.descripcion like '%".$valor."%'
                                 or ass.razon_social like '%".$valor."%'
+                                or aan.cod like '%".$valor."%' 
                                )";
                     }
                     else
@@ -45,6 +48,7 @@ class InvAjusteNegativoController extends Controller
                         or pte.nombre like '%".$valor."%' 
                         or aan.descripcion like '%".$valor."%'
                         or ass.razon_social like '%".$valor."%'
+                        or aan.cod like '%".$valor."%' 
                        )";
                     }
     
@@ -67,7 +71,9 @@ class InvAjusteNegativoController extends Controller
                         'aan.id_sucursal as id_sucursal',
                         'ass.razon_social as razon_social',
                         'aan.created_at as fecha_creacion',
-                        'aan.activo as activo')
+                        'aan.activo as activo',
+                        'aan.cod as cod',
+                        'aan.id_ingreso as id_ingreso')
                         ->whereRaw($sqls)
                         ->paginate(15);
                         
@@ -106,7 +112,9 @@ class InvAjusteNegativoController extends Controller
             'aan.id_sucursal as id_sucursal',
             'ass.razon_social as razon_social',
             'aan.created_at as fecha_creacion',
-            'aan.activo as activo')
+            'aan.activo as activo',
+            'aan.cod as cod',
+            'aan.id_ingreso as id_ingreso')
             //->whereraw($sqls)
             ->paginate(15);
             return [
@@ -140,146 +148,198 @@ class InvAjusteNegativoController extends Controller
     /**
  * @method POST
  */
-    public function store(Request $request, Alm_IngresoProducto $alm_AjusteNegativo)
+    public function store(Request $request, Inv_AjusteNegativo $inv_AjusteNegativo,Alm_IngresoProducto $alm_IngresoProducto,Tda_IngresoProducto $tda_IngresoProducto)
     {
+        $cod=$request->cod;
+        $id_ingreso=$request->id_ingreso;
+        $activador=0;
+        $almacenIngreso = DB::table('alm__ingreso_producto as ai')
+        ->join('alm__almacens as aa', 'ai.idalmacen', '=', 'aa.id')
+        ->where('ai.id', '=', $id_ingreso)
+        ->where('aa.codigo', '=', $cod)
+        ->select('ai.id as id', 'aa.codigo as codigo')
+        ->first();
+        $tinedaIngreso = DB::table('tda__ingreso_productos as ti')
+        ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.idsucursal')
+        ->where('ti.id', '=', $id_ingreso)
+        ->where('tt.codigo', '=', $cod)
+        ->select('ti.id as id', 'tt.codigo as codigo')
+        ->first();
+        if ($almacenIngreso) {
+            $activador=1;  
+            $id = $almacenIngreso->id;
+            $codigo = $almacenIngreso->codigo;          
+        } else {
+            if ($tinedaIngreso) {
+                $activador=2; 
+                $id = $tinedaIngreso->id;
+                $codigo = $tinedaIngreso->codigo;
+            } else {
+                $activador=0; 
+            }
             
-        $ajusteNegativo=new Inv_AjusteNegativo();
-        $ajusteNegativo->id_usuario = auth()->user()->id;
-        $ajusteNegativo->usuario = auth()->user()->name;
-        $ajusteNegativo->id_tipo=$request->id_tipo;
-        $ajusteNegativo->id_producto_linea=$request->id_producto_linea;
-        $ajusteNegativo->codigo=$request->codigo;
-        $ajusteNegativo->linea=$request->linea;
-        $ajusteNegativo->producto=$request->producto;
-        $ajusteNegativo->cantidad=$request->cantidad;
-        $ajusteNegativo->descripcion=$request->descripcion;
-        $ajusteNegativo->fecha=$request->fecha;
-        $ajusteNegativo->activo=$request->activo;
-        $ajusteNegativo->id_sucursal=$request->id_sucursal;
-        $ajusteNegativo->save();
-        $updateAjusteNegativo=Alm_IngresoProducto::find($request->id_producto);
-        $updateAjusteNegativo->stock_ingreso=$request->cantidad;
-        $updateAjusteNegativo->save();
+        }
+        
+        if ($activador==1) {
+            $ajusteNegativo=new Inv_AjusteNegativo();
+            $ajusteNegativo->id_usuario = auth()->user()->id;
+            $ajusteNegativo->usuario = auth()->user()->name;
+            $ajusteNegativo->id_tipo=$request->id_tipo;
+            $ajusteNegativo->id_producto_linea=$request->id_producto_linea;
+            $ajusteNegativo->codigo=$request->codigo;
+            $ajusteNegativo->linea=$request->linea;
+            $ajusteNegativo->producto=$request->producto;
+            $ajusteNegativo->cantidad=$request->cantidad;
+            $ajusteNegativo->descripcion=$request->descripcion;
+            $ajusteNegativo->fecha=$request->fecha;
+            $ajusteNegativo->activo=$request->activo;
+            $ajusteNegativo->id_sucursal=$request->id_sucursal;
+            $ajusteNegativo->cod=$codigo;
+            $ajusteNegativo->id_ingreso=$id;
+            $update=Alm_IngresoProducto::find($id);
+            $update->cantidad=$request->cantidad;
+            $update->stock_ingreso=$request->cantidad;
+            $update->save();
+           $ajusteNegativo->save();
+
+        }else {
+            if ($activador==2) {
+                $ajusteNegativo=new Inv_AjusteNegativo();
+                $ajusteNegativo->id_usuario = auth()->user()->id;
+                $ajusteNegativo->usuario = auth()->user()->name;
+                $ajusteNegativo->id_tipo=$request->id_tipo;
+                $ajusteNegativo->id_producto_linea=$request->id_producto_linea;
+                $ajusteNegativo->codigo=$request->codigo;
+                $ajusteNegativo->linea=$request->linea;
+                $ajusteNegativo->producto=$request->producto;
+                $ajusteNegativo->cantidad=$request->cantidad;
+                $ajusteNegativo->descripcion=$request->descripcion;
+                $ajusteNegativo->fecha=$request->fecha;
+                $ajusteNegativo->activo=$request->activo;
+                $ajusteNegativo->id_sucursal=$request->id_sucursal;
+                $ajusteNegativo->cod=$codigo;
+                $ajusteNegativo->id_ingreso=$id;
+                $update=Tda_IngresoProducto::find($id);
+                $update->cantidad=$request->cantidad;
+                $update->stock_ingreso=$request->cantidad;
+                $update->save();
+               $ajusteNegativo->save();
+            } else {
+                dd("error");
+            }
+            
+        }
+      
+     
+      
+       
+        
+      //  dd("--".$almacenIngreso);
+      //  echo "almacen--.$almacenIngreso->id";
+       
+           
+          //  echo "producto--.$tinedaIngreso->id";
+        
+       // $updateAjusteNegativo->stock_ingreso=$request->cantidad;
+       // $ajusteNegativo->save();
+       // $updateAjusteNegativo->save();
         
     }
 
 
 
     public function listarProductoLineaIngreso(Request $request){
-      $id = $request->query('respuesta1');
-        // dd($respuesta1); 
-        if ($id==0) {
-            return $id;
-        } else {
+      $cod = $request->query('respuesta0');
+     
+      $productos = DB::table('prod__productos as pp')
+      ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
+      ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+      ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+      ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+      ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+      ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+      ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+      ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+      ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
+      ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+      ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+      ->where('ai.stock_ingreso', '>', 0)
+      ->where('aa.codigo', $cod) 
+      ->select(
+        'aa.codigo as cod',
+        'ai.id as id_ingreso',
+        'ai.id_prod_producto as id_producto',
+        'ai.lote as lote',
+        'ai.stock_ingreso as stock_ingreso',
+        'ai.cantidad as cantidad_ingreso',
+        'ai.created_at as fecha_ingreso',
+        'ai.fecha_vencimiento as fecha_vencimiento',
+        'pp.nombre as nombre',
+        'pp.codigo as codigo_producto',
+        'pp.cantidadprimario as cantidad_dispenser_p',
+        'pp.cantidadsecundario as cantidad_dispenser_s',
+        'pp.cantidadterciario as cantidad_dispenser_t',
+        'l.nombre as nombre_linea',
+        'pd_1.nombre as nombre_dispenser_1',
+        'pd_2.nombre as nombre_dispenser_2',
+        'pd_3.nombre as nombre_dispenser_3',
+        'ff_1.nombre as nombre_farmaceutica_1',
+        'ff_2.nombre as nombre_farmaceutica_2',
+        'ff_3.nombre as nombre_farmaceutica_3',
+        'ass.id AS id_sucursal',
+        'ass.razon_social as razon_social',
+        DB::raw('null as id_tienda'),
+        'ai.idalmacen as id_almacen'
+    );
 
-            $productos = DB::table('alm__ingreso_producto as aip')
-            ->join('prod__productos as pp', 'aip.id_prod_producto', '=', 'pp.id')
-            ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispenserprimario')
-            ->join('prod__forma_farmaceuticas as ff', 'pp.idformafarmaceuticaprimario', '=', 'ff.id')
-            ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-            ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
-            ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-            ->where('aip.stock_ingreso', '>', 0)
-            ->select(
-                'aip.id as id_ingreso',
-                'aip.id_prod_producto as id_producto',
-                'aip.lote as lote',
-                'aip.cantidad as cantidad_ingreso',
-                'aip.stock_ingreso as stock_ingreso',
-                'aip.created_at as fecha_ingreso',
-                'aip.fecha_vencimiento as fecha_vencimiento',
-                'pp.nombre as nombre',
-                'pp.codigo as codigo_producto',
-                'pp.cantidadprimario as cantidad_dispenser_p',
-                'l.nombre as nombre_linea',
-                'pd.nombre as nombre_dispenser',
-                'ff.nombre as nombre_farmaceutica',
-                    'ass.id as id_sucursal'
-            )
-            ->whereRaw('aip.id = ?', [$id])
-            ->get();
-     return $productos; 
-        }
+  $tiendas = DB::table('prod__productos as pp')
+  ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
+  ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+  ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+  ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+  ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+  ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+  ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+  ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+  ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
+  ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+  ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
+      ->where('ti.stock_ingreso', '>', 0)
+      ->where('tt.codigo', $cod) 
+      ->select(
+        'tt.codigo as cod',
+        'ti.id as id_ingreso',
+        'ti.id_prod_producto as id_producto',
+        'ti.lote as lote',
+        'ti.stock_ingreso as stock_ingreso',
+        'ti.cantidad as cantidad_ingreso',
+        'ti.created_at as fecha_ingreso',
+        'ti.fecha_vencimiento as fecha_vencimiento',
+        'pp.nombre as nombre',
+        'pp.codigo as codigo_producto',
+        'pp.cantidadprimario as cantidad_dispenser_p',
+        'pp.cantidadsecundario as cantidad_dispenser_s',
+        'pp.cantidadterciario as cantidad_dispenser_t',
+        'l.nombre as nombre_linea',
+        'pd_1.nombre as nombre_dispenser_1',
+        'pd_2.nombre as nombre_dispenser_2',
+        'pd_3.nombre as nombre_dispenser_3',
+        'ff_1.nombre as nombre_farmaceutica_1',
+        'ff_2.nombre as nombre_farmaceutica_2',
+        'ff_3.nombre as nombre_farmaceutica_3',
+        'ass.id AS id_sucursal',
+        'ass.razon_social as razon_social',
+        'ti.idtienda as id_tienda',
+        DB::raw('null as id_almacen')
+      );
+
+  $result = $productos->unionAll($tiendas)->get();
+
+  return $result;
        
     }
 
-    public function listarProductoLineaIngresoDos(Request $request){
-        $id = $request->query('respuesta1');
-          // dd($respuesta1); 
-          if ($id==0) {
-              return $id;
-          } else {
-  
-              $productos = DB::table('alm__ingreso_producto as aip')
-              ->join('prod__productos as pp', 'aip.id_prod_producto', '=', 'pp.id')
-              ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispensersecundario')
-              ->join('prod__forma_farmaceuticas as ff', 'pp.idformafarmaceuticasecundario', '=', 'ff.id')
-              ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-              ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
-              ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-              ->where('aip.stock_ingreso', '>', 0)
-              ->select(
-                  'aip.id as id_ingreso',
-                  'aip.id_prod_producto as id_producto',
-                  'aip.lote as lote',
-                  'aip.cantidad as cantidad_ingreso',
-                  'aip.stock_ingreso as stock_ingreso',
-                  'aip.created_at as fecha_ingreso',
-                  'aip.fecha_vencimiento as fecha_vencimiento',
-                  'pp.nombre as nombre',
-                  'pp.codigo as codigo_producto',
-                  'pp.cantidadsecundario as cantidad_dispenser_p',
-                  'l.nombre as nombre_linea',
-                  'pd.nombre as nombre_dispenser',
-                  'ff.nombre as nombre_farmaceutica',
-                  'ass.id as id_sucursal'
-              )
-              ->whereRaw('aip.id = ?', [$id])
-              ->get();
-       
-         return $productos; 
-          }
-         
-      }
 
-      public function listarProductoLineaIngresoTres(Request $request){
-        $id = $request->query('respuesta1');
-          // dd($respuesta1); 
-          if ($id==0) {
-              return $id;
-          } else {
-  
-              $productos = DB::table('alm__ingreso_producto as aip')
-              ->join('prod__productos as pp', 'aip.id_prod_producto', '=', 'pp.id')
-              ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispenserterciario')
-              ->join('prod__forma_farmaceuticas as ff', 'pp.idformafarmaceuticaterciario', '=', 'ff.id')
-              ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-              ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
-              ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-              ->where('aip.stock_ingreso', '>', 0)
-              ->select(
-                  'aip.id as id_ingreso',
-                  'aip.id_prod_producto as id_producto',
-                  'aip.lote as lote',
-                  'aip.cantidad as cantidad_ingreso',
-                  'aip.stock_ingreso as stock_ingreso',
-                  'aip.created_at as fecha_ingreso',
-                  'aip.fecha_vencimiento as fecha_vencimiento',
-                  'pp.nombre as nombre',
-                  'pp.codigo as codigo_producto',
-                  'pp.cantidadterciario as cantidad_dispenser_p',
-                  'l.nombre as nombre_linea',
-                  'pd.nombre as nombre_dispenser',
-                  'ff.nombre as nombre_farmaceutica',
-                  'ass.id as id_sucursal'
-              )
-              ->whereRaw('aip.id = ?', [$id])
-              ->get();
- 
-         return $productos; 
-          }
-         
-      }
 
     public function listarSucursal(){
        // $sucursales = DB::table('adm__sucursals')
@@ -287,8 +347,9 @@ class InvAjusteNegativoController extends Controller
        // ->orderby('id')
        // ->get();
  
-        $sucursales = DB::table('adm__sucursals')
-        ->select('id as id_tienda', DB::raw('null as id_almacen'), 'cod as codigo', 'razon_social', DB::raw('null as sucursal'))
+        $sucursales = DB::table('tda__tiendas')
+            ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal')
+         ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id')
         ->unionAll(
             DB::table('alm__almacens as aa')
                 ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
@@ -336,7 +397,7 @@ foreach ($sucursales as $key=>$sucursal) {
     /**
      * Display the specified resource.
      */
-    public function show(Inv_AjusteNegativo $alm_AjusteNegativo)
+    public function show(Inv_AjusteNegativo $inv_AjusteNegativo)
     {
         //
     }
@@ -344,7 +405,7 @@ foreach ($sucursales as $key=>$sucursal) {
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Inv_AjusteNegativo $alm_AjusteNegativo)
+    public function edit(Inv_AjusteNegativo $inv_AjusteNegativo)
     {
         //
     }
@@ -352,33 +413,91 @@ foreach ($sucursales as $key=>$sucursal) {
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Inv_AjusteNegativo $alm_AjusteNegativo)
-    {
-        
-        $updateAjusteNegativo=Inv_AjusteNegativo::find($request->id);
-        $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
-        $updateAjusteNegativo->id_tipo=$request->id_tipo;
-       $updateAjusteNegativo->linea=$request->id_producto_linea;
-       $updateAjusteNegativo->codigo=$request->codigo;
-        $updateAjusteNegativo->linea=$request->linea;
-        $updateAjusteNegativo->producto=$request->producto;
-        $updateAjusteNegativo->cantidad=$request->cantidad;
-       
-        $updateAjusteNegativo->descripcion=$request->descripcion;
-        $updateAjusteNegativo->fecha=$request->fecha;
-        $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
-       
-        $updateAjusteNegativo->save();
+    public function update(Request $request, Inv_AjusteNegativo $inv_AjusteNegativo)
+    {$cod=$request->cod;
+        $id_ingreso=$request->id_ingreso;
+        $activador=0;
 
-        $updateIngrePro=Alm_IngresoProducto::find($request->id_producto);
-        $updateIngrePro->stock_ingreso=$request->cantidad;
-        $updateIngrePro->save();
+        $almacenIngreso = DB::table('alm__ingreso_producto as ai')
+        ->join('alm__almacens as aa', 'ai.idalmacen', '=', 'aa.id')
+        ->where('ai.id', '=', $id_ingreso)
+        ->where('aa.codigo', '=', $cod)
+        ->select('ai.id as id', 'aa.codigo as codigo')
+        ->first();
+        $tinedaIngreso = DB::table('tda__ingreso_productos as ti')
+        ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.idsucursal')
+        ->where('ti.id', '=', $id_ingreso)
+        ->where('tt.codigo', '=', $cod)
+        ->select('ti.id as id', 'tt.codigo as codigo')
+        ->first();
+        if ($almacenIngreso) {
+            $activador=1;  
+            $id = $almacenIngreso->id;
+            $codigo = $almacenIngreso->codigo;          
+        } else {
+            if ($tinedaIngreso) {
+                $activador=2; 
+                $id = $tinedaIngreso->id;
+                $codigo = $tinedaIngreso->codigo;
+            } else {
+                $activador=0; 
+            }
+            
+        }
+        if ($activador==1) {
+            $updateAjusteNegativo=Inv_AjusteNegativo::find($request->id);
+            $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
+            $updateAjusteNegativo->id_tipo=$request->id_tipo;
+           $updateAjusteNegativo->linea=$request->id_producto_linea;
+           $updateAjusteNegativo->codigo=$request->codigo;
+            $updateAjusteNegativo->linea=$request->linea;
+            $updateAjusteNegativo->producto=$request->producto;
+            $updateAjusteNegativo->cantidad=$request->cantidad;
+           
+            $updateAjusteNegativo->descripcion=$request->descripcion;
+            $updateAjusteNegativo->fecha=$request->fecha;
+            $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
+            $updateAjusteNegativo->cod=$request->cod;
+            $updateAjusteNegativo->id_ingreso=$request->id_ingreso;
+            $update=Alm_IngresoProducto::find($id);
+            $update->cantidad=$request->cantidad;
+            $update->stock_ingreso=$request->cantidad;
+            $update->save();
+           $updateAjusteNegativo->save();
+           
+        
+        }else{
+            if ($activador==2) {
+                $updateAjusteNegativo=Inv_AjusteNegativo::find($request->id);
+                $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
+                $updateAjusteNegativo->id_tipo=$request->id_tipo;
+               $updateAjusteNegativo->linea=$request->id_producto_linea;
+               $updateAjusteNegativo->codigo=$request->codigo;
+                $updateAjusteNegativo->linea=$request->linea;
+                $updateAjusteNegativo->producto=$request->producto;
+                $updateAjusteNegativo->cantidad=$request->cantidad;
+               
+                $updateAjusteNegativo->descripcion=$request->descripcion;
+                $updateAjusteNegativo->fecha=$request->fecha;
+                $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
+                $updateAjusteNegativo->cod=$request->cod;
+                $updateAjusteNegativo->id_ingreso=$request->id_ingreso;
+                $update=Tda_IngresoProducto::find($id);
+                $update->cantidad=$request->cantidad;
+                $update->stock_ingreso=$request->cantidad;
+                $update->save();
+               $updateAjusteNegativo->save();
+            } else {
+                dd("error");
+            }
+        }
+        
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Inv_AjusteNegativo $alm_AjusteNegativo)
+    public function destroy(Inv_AjusteNegativo $inv_AjusteNegativo)
     {
         //
     }

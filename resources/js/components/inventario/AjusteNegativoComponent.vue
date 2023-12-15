@@ -20,13 +20,13 @@
                 <div class="card-body">
                     <div class="form-group row">
                         <div class="col-md-2" style="text-align:center">
-                            <label for="" >Sucursales Disponibles:</label>
+                            <label for="" >Almacen o Tienda:</label>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group">
                                 <select class="form-control" @change="listarAjusteNegativos(0)" v-model="sucursalSeleccionada">
                                     <option value="0" disabled>Seleccionar...</option>
-                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id" :value="sucursal.id" v-bind:value="sucursal.razon_social" v-text="'Sucursal:'+sucursal.razon_social "></option>
+                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id" :value="sucursal.codigo" v-text="'Tipo: '+sucursal.codigo+' Sucursal:'+sucursal.razon_social "></option>
                                 </select>                              
                             </div>
                         </div>
@@ -79,7 +79,7 @@
                           <tr v-for="AjusteNegativos  in arrayAjusteNegativos" :key="AjusteNegativos.id">
                               <td>
                                  
-                                 <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',AjusteNegativos)">
+                                 <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',AjusteNegativos);ProductoLineaIngreso();">
                                     <i class="icon-pencil"></i>    
                                  </button> &nbsp;
                                  <button v-if="AjusteNegativos.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAjusteNegativos(AjusteNegativos.id)" >
@@ -147,25 +147,8 @@
                         Todos los campos con (*) son requeridos
                     </div>
                     <form action=""  class="form-horizontal">
-
-                                    <!-- tab para los envases del producto -->
-                                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <a class="nav-link active" id="pills-envase-primario-tab" data-toggle="pill" href="#pills-envase-primario" role="tab" aria-controls="pills-home" aria-selected="true"  @click="cambiarPestana('pills-envase-primario-tab')">Envase Primario</a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a class="nav-link" id="pills-envase-secundario-tab" data-toggle="pill" href="#pills-envase-secundario" role="tab" aria-controls="pills-profile" aria-selected="false"  @click="cambiarPestana('pills-envase-secundario-tab')">Envase Secundario</a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a class="nav-link" id="pills-envase-terciario-tab" data-toggle="pill" href="#pills-envase-terciario" role="tab" aria-controls="pills-contact" aria-selected="false"  @click="cambiarPestana('pills-envase-terciario-tab')">Envase Terciario</a>
-                                    </li>
-                                </ul>
-
-                        <!-- insertar datos -->
-                        <div class="tab-content" id="pills-tabContent">
-                            <div class="tab-pane fade show active" id="pills-envase-primario" role="tabpanel" aria-labelledby="pills-envase-primario-tab">
-                                <strong>Envase Primario:</strong>
-                                <div class="container">
+                       <!-- insertar datos -->
+                     <div class="container">
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Producto
@@ -175,16 +158,17 @@
                                     
                                     <select name="" id="" v-model="ProductoLineaIngresoSeleccionado" class="form-control" @change="cambioDeEstado">
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
-                                        <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-'+ProductoLineaIngreso.cantidad_dispenser_p +'-'+ProductoLineaIngreso.nombre_farmaceutica+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+ProductoLineaIngreso.fecha_vencimiento+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
+                                        <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-D1:'+(ProductoLineaIngreso.cantidad_dispenser_p === null?'': ProductoLineaIngreso.cantidad_dispenser_p)+'-D2:'+(ProductoLineaIngreso.cantidad_dispenser_s === null?'': ProductoLineaIngreso.cantidad_dispenser_s)+'-D3:'+(ProductoLineaIngreso.cantidad_dispenser_t === null?'': ProductoLineaIngreso.cantidad_dispenser_t)+'-'+ProductoLineaIngreso.nombre_farmaceutica_1+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+(ProductoLineaIngreso.fecha_vencimiento === null?'sin registro':ProductoLineaIngreso.fecha_vencimiento)+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
                                     </select>
-                                    <input type="text" v-model="sucursalSeleccionada" hidden>
-                                    <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
-                                    <input type="text"  v-model="codigo" hidden>
-                                    <input type="text"  v-model="linea" hidden>
-                                    <input type="text"  v-model="producto" hidden>
-                                    <input type="text"  v-model="fecha" hidden>
-                                    <input type="text"  v-model="id_sucursal" hidden>
-                                    <input type="text" v-model="id_producto" hidden>
+                                    <input type="text" v-model="id_codigo" >
+                                    <input type="number"  v-model="cantidadProductoLineaIngreso" >
+                                    <input type="text"  v-model="codigo" >
+                                    <input type="text"  v-model="linea" >
+                                    <input type="text"  v-model="producto" >
+                                    <input type="text"  v-model="fecha" >
+                                    <input type="text"  v-model="id_sucursal" >
+                                    <input type="text" v-model="id_producto">
+                                    <input type="text" v-model="id_ingreso" >
 
                                  
                                      </div>
@@ -223,75 +207,8 @@
                                   </div> 
                             
                         </div>    
-                            </div>
-                            <div class="tab-pane fade" id="pills-envase-secundario" role="tabpanel" aria-labelledby="ppills-envase-secundario">
-                                <strong>Envase Secundario:</strong>
-
-                                <div class="container">
-                            <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">
-                                    Producto
-                                    <span v-if="ProductoLineaIngreso=='0'"  class="error">(*)</span>
-                                </label>
-                                <div class="col-md-9">
-                                    
-                                    <select name="" id="" v-model="ProductoLineaIngresoSeleccionado" class="form-control" @change="cambioDeEstado">
-                                        <option v-bind:value="0" disabled>Seleccionar...</option>
-                                        <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-'+ProductoLineaIngreso.cantidad_dispenser_p +'-'+ProductoLineaIngreso.nombre_farmaceutica+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+ProductoLineaIngreso.fecha_vencimiento+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
-                                    </select>
-                                    <input type="text" v-model="sucursalSeleccionada" hidden>
-                                    <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
-                                    <input type="text"  v-model="codigo" hidden>
-                                    <input type="text"  v-model="linea" hidden>
-                                    <input type="text"  v-model="producto" hidden>
-                                    <input type="text"  v-model="fecha" hidden>
-                                    <input type="text"  v-model="id_sucursal" hidden>
-                                    <input type="text" v-model="id_producto" hidden>
-                                   
-                                 
-                                     </div>
-                            </div>
-                                   <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Cantidad 
-                                        <span v-if="cantidadS==''" class="error">(*)</span>
-                                      </label>
-                                        <div class="col-md-9">
-                                         <input type="number" id="cantidad" name="cantidad" v-model="cantidadS" class="form-control" placeholder="Datos de stock" v-on:focus="selectAll" >
-                                           <span v-if="cantidadS==''" class="error">Debe Ingresar una cantidad</span> 
-                                        </div>
-                                  </div>   
-
-                           <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">
-                                    Tipo
-                                    <span   class="error">(*)</span>
-                                </label>
-                                <div class="col-md-9">
-                                    <select name="" id="" v-model="TiposSeleccionado" class="form-control">
-                                        <option value="0" disabled>Seleccionar...</option>
-                                        <option v-for="Tipos in arrayTipos" :key="arrayTipos.id" :value="Tipos.id" v-text="Tipos.nombre"></option>
-                                    </select>
-                                    <span v-if="TiposSeleccionado==0" class="error">Debe seleccionar una opcion</span>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Descripción
-                                        <span v-if="descripcion" class="error">(*)</span>
-                                      </label>
-                                        <div class="col-md-9">
-                                            <textarea v-model="descripcion" class="form-control" id="descripcion" name="descripcion" rows="3" v-on:focus="selectAll"></textarea>
-                                            <span v-if="descripcion===''" class="error">Debe Ingresar la Descripción</span>
-                                      </div>
-                                  </div> 
-                            
-                        </div>  
-                                      
-                            </div>
-                            <div class="tab-pane fade " id="pills-envase-terciario" role="tabpanel" aria-labelledby="pills-envase-terciario">
-                                <strong>Envase Terciario:</strong>
-                                      
-                            </div>
-                        </div>        
+                   
+                               
  
                     </form>
 
@@ -330,18 +247,14 @@
     
      
 
-                iniTab:0,
-                tab1:1,
-                tab2:2,
-                tab3:3,
+                
                 tituloModal:'',
                 arrayTipos:[],
                 TiposSeleccionado:0,
                 id_tipo:'',
                 arrayProductoLineaIngreso:[],
                 ProductoLineaIngresoSeleccionado:0,
-                ProductoLineaIngresoSeleccionadoDos:0,
-                ProductoLineaIngresoSeleccionadoTres:0,
+               
                 id_producto_linea:'',
                 cantidadS:'',
                 listarTipo:0,
@@ -351,8 +264,9 @@
                 linea:'',
                 producto:'',
                 fecha:'',
-                
+                id_ingreso:'',
                 id_producto:'',
+                id_codigo:'',
                 arrayAjusteNegativos:[],
      
                 buscar:'',
@@ -386,7 +300,8 @@
          this.producto=productoSeleccionado.nombre;
         this.fecha=productoSeleccionado.fecha_ingreso;
          this.id_sucursal=productoSeleccionado.id_sucursal;
-         this.id_producto=productoSeleccionado.id_producto;       
+         this.id_producto=productoSeleccionado.id_producto; 
+         this.id_ingreso=productoSeleccionado.id_ingreso;      
                 } else {
     console.log("No matching element found in arrayProductoLineaIngreso.");
         }
@@ -503,9 +418,15 @@
                 
           ProductoLineaIngreso(){
                 let me=this;
-                console.log("   -  "+me.pestañaActiva);
-                var url='/ajustes-negativo/listarProductoLineaIngreso?respuesta1=' +this.sucursalSeleccionada;
-                console.log(url);
+               
+                if(me.tipoAccion==1){
+                    var url='/ajustes-negativo/listarProductoLineaIngreso?respuesta0=' +this.sucursalSeleccionada;
+                 }
+                 if (me.tipoAccion==2) {
+                    var url='/ajustes-negativo/listarProductoLineaIngreso?respuesta0=' +this.id_codigo;
+                 
+                 }
+                
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     
@@ -518,23 +439,7 @@
                     console.log(error);
                 });
             },
-            ProductoLineaIngresoDos(){
-                let me=this;
-              
-                var url='/ajustes-negativo/listarProductoLineaIngreso?respuesta1=' +this.sucursalSeleccionada;
-                console.log(url);
-                axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    
-                    me.arrayProductoLineaIngreso=respuesta;
-        
-                    console.log( me.arrayProductoLineaIngreso);
-                })
-                .catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
-            },
+          
 
         cambiarPagina(page){
                let me =this;
@@ -545,18 +450,22 @@
 
         abrirModal(accion,data= []){
             let me=this;
-            let respuesta=me.arraySucursal.find(element=>element.id==me.sucursalSeleccionada);
-              
+            let respuesta=me.arraySucursal.find(element=>element.codigo==me.sucursalSeleccionada);
+            console.log(data.id+" "+data.id_ingreso+" "+data.cod);
             switch(accion){
+                
                     case 'registrar':
+
                     {
+                        me.tipoAccion=1;
                         me.tituloModal='Rejistro para Ajuste de negativos en la sucursal: '+respuesta.razon_social;
                         me.ProductoLineaIngresoSeleccionado=0;
                        
+                        me.id_codigo=me.sucursalSeleccionada;
                         me.cantidadProductoLineaIngreso=''; 
                         me.TiposSeleccionado=0; 
                         me.cambiodeEstado='';
-                        me.tipoAccion=1;
+                       
                         me.codigo='';
                         me.linea='';
                         me.producto='',
@@ -565,25 +474,32 @@
                         me.fecha='';
                         me.id_sucursal='';
                         me.id_producto='';
+                        me.id_ingreso='';
                         me.classModal.openModal('registrar');
                         break;
                     }
                     case 'actualizar':
-                        {   
-                        me.tituloModal='Actualizacion Datos del Almacen';
-                        me.TiposSeleccionado=data.id_tipo===null?0:data.id_tipo;
-                        me.ProductoLineaIngresoSeleccionado=data.id_producto_linea===null?0:data.id_producto_linea;
-                    
-                        me.tipoAccion=2;
-                        me.codigo=data.codigo;
+                        { 
+                            me.id_codigo=data.cod; 
+                            me.tipoAccion=2;
+                            me.tituloModal='Actualizacion para Ajuste de negativos en la sucursal: ';
+                            me.codigo=data.codigo;
+                            me.cantidadProductoLineaIngreso=data.cantidad;
                         me.linea=data.linea;
-                        me.producto=data.nombreProd,
+                        me.producto=data.producto,
                         me.cantidadS=0;
                         me.descripcion=data.descripcion;
                         me.fecha=data.fecha;
-                        me.idAjusteNegativos=data.id;
-                        me.id_sucursal=data.id_sucursal;
-                        me.id_producto=data.id_producto;
+                       me.idAjusteNegativos=data.id;
+                       me.id_sucursal=data.id_sucursal;
+                        me.id_producto=data.cod;
+                       me.id_ingreso=data.id_ingreso;
+                        me.TiposSeleccionado=data.id_tipo===null?0:data.id_tipo;
+                       me. ProductoLineaIngresoSeleccionado=data.id_ingreso===null?0:data.id_ingreso;
+                    
+                           
+                        
+                       
                         me.classModal.openModal('registrar');
                             break;
                         }
@@ -597,7 +513,9 @@
                 me.classModal.closeModal(accion);
                 me.ProductoLineaIngresoSeleccionado=0;
                 me.TiposSeleccionado=0; 
+                me.cantidadProductoLineaIngreso='';
                 me.tipoAccion=1;
+                me.id_codigo='';
                         me.codigo='';
                         me.linea='';
                         me.producto='',
@@ -605,17 +523,16 @@
                         me.descripcion='';
                         me.fecha='';
                         me.id_sucursal='';
-                      
+                      me.id_ingreso='';
                         me.id_producto='';
                            
             },
         
             registrorAjusteNegativo(){
                 let me =  this;
-                console.log(me.TiposSeleccionado+" "+me.ProductoLineaIngresoSeleccionado+" "+me.codigo+" "+me.linea+" "+
-                me.producto+" "+me.cantidadProductoLineaIngreso+" "+me.id_sucursal);
-                let suma = me.cantidadProductoLineaIngreso-me.cantidadS
-                console.log(suma);
+                console.log(me.TiposSeleccionado+" - "+me.sucursalSeleccionada+"->>>>"+me.id_ingreso);
+                    let suma = me.cantidadProductoLineaIngreso-me.cantidadS
+               
                 if (me.codigo === "" || me.linea  === "" || me.producto ===  "" || me.cantidadS === "" || me.TiposSeleccionado === "" || me.descripcion === "" || me.fecha === "" ) {
                     Swal.fire(
                         'No puede ingresar valor nulos  o vacios',
@@ -635,8 +552,10 @@
                    'fecha':me.fecha,
                    'activo':1,
                    'id_sucursal':me.id_sucursal,
-                  
                    'id_producto':me.id_producto,
+                 'cod':me.sucursalSeleccionada,
+                 'id_ingreso':me.id_ingreso,
+                   
                  
             }).then(function(response){
                     me.cerrarModal('registrar');
@@ -668,8 +587,10 @@
                    'descripcion':me.descripcion,
                   'fecha':me.fecha,                  
                   'id_sucursal':me.id_sucursal,
-               
+                   'id_ingreso':me.id_ingreso, 
                   'id_producto':me.id_producto,
+                  'cod':me.sucursalSeleccionada,
+                 'id_ingreso':me.id_ingreso,
                 
                 }).then(function (response) {
                     me.listarAjusteNegativos();
@@ -816,8 +737,7 @@
         this.classModal.addModal('registrar');
         this.listarAjusteNegativos(1);
         this.ajustesNegativos();
-        this.ProductoLineaIngreso();
-        this.ProductoLineaIngresoDos();
+      
         this.cambiodeEstado();
         this.sucursalFiltro();
        

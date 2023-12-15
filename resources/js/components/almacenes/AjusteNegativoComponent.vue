@@ -470,8 +470,9 @@
                    'descripcion':me.descripcion,
                    'fecha':me.fecha,
                    'activo':1,
+                   //'cod':me.cod,
                    'id_sucursal':me.id_sucursal,
-                 
+                        
             }).then(function(response){
                     me.cerrarModal('registrar');
                     Swal.fire(

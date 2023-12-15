@@ -160,15 +160,15 @@
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
                                         <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-D1:'+(ProductoLineaIngreso.cantidad_dispenser_p === null?'': ProductoLineaIngreso.cantidad_dispenser_p)+'-D2:'+(ProductoLineaIngreso.cantidad_dispenser_s === null?'': ProductoLineaIngreso.cantidad_dispenser_s)+'-D3:'+(ProductoLineaIngreso.cantidad_dispenser_t === null?'': ProductoLineaIngreso.cantidad_dispenser_t)+'-'+ProductoLineaIngreso.nombre_farmaceutica_1+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+(ProductoLineaIngreso.fecha_vencimiento === null?'sin registro':ProductoLineaIngreso.fecha_vencimiento)+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
                                     </select>
-                                    <input type="text" v-model="id_codigo" >
-                                    <input type="number"  v-model="cantidadProductoLineaIngreso" >
-                                    <input type="text"  v-model="codigo" >
-                                    <input type="text"  v-model="linea" >
-                                    <input type="text"  v-model="producto" >
-                                    <input type="text"  v-model="fecha" >
-                                    <input type="text"  v-model="id_sucursal" >
-                                    <input type="text" v-model="id_producto">
-                                    <input type="text" v-model="id_ingreso" >
+                                    <input type="text" v-model="id_codigo" hidden>
+                                    <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
+                                    <input type="text"  v-model="codigo" hidden>
+                                    <input type="text"  v-model="linea" hidden>
+                                    <input type="text"  v-model="producto" hidden>
+                                    <input type="text"  v-model="fecha" hidden>
+                                    <input type="text"  v-model="id_sucursal" hidden>
+                                    <input type="text" v-model="id_producto" hidden>
+                                    <input type="text" v-model="id_ingreso" hidden>
 
                                  
                                      </div>

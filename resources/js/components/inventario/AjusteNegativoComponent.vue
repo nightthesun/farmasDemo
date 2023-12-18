@@ -15,7 +15,7 @@
                     <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');ProductoLineaIngreso();" :disabled="sucursalSeleccionada==0" >
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
-                    <span v-if="sucursalSeleccionada==0" class="error">&nbsp; &nbsp;Debe Seleccionar una sucursal</span>
+                    <span v-if="sucursalSeleccionada==0" class="error">&nbsp; &nbsp;Debe Seleccionar un almacen o tienda.</span>
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
@@ -25,8 +25,8 @@
                         <div class="col-md-6">
                             <div class="input-group">
                                 <select class="form-control" @change="listarAjusteNegativos(0)" v-model="sucursalSeleccionada">
-                                    <option value="0" disabled>Seleccionar...</option>
-                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id" :value="sucursal.codigo" v-text="'Tipo: '+sucursal.codigo+' Sucursal:'+sucursal.razon_social "></option>
+                                    <option value="0" >Seleccionar...</option>
+                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id" :value="sucursal.codigo" v-text="sucursal.tipoCodigo+':'+sucursal.codigo+' Sucursal:'+sucursal.razon_social "></option>
                                 </select>                              
                             </div>
                         </div>
@@ -274,9 +274,9 @@
                if (this.tipoAccion === 1) {
                 this.cantidadS=0;
                } 
-               console.log("++++"+this.arrayProductoLineaIngreso);
+          
             let productoSeleccionado=this.arrayProductoLineaIngreso.find(element=>element.id_ingreso === newValue);
-         console.log("***"+productoSeleccionado);
+       
             if (productoSeleccionado) {
            this.cantidadProductoLineaIngreso=productoSeleccionado.stock_ingreso;
           this.codigo=productoSeleccionado.codigo_producto;
@@ -470,7 +470,7 @@
                             me.codigo=data.codigo;
                             me.cantidadProductoLineaIngreso=data.cantidad;
                         me.linea=data.linea;
-                        me.producto=data.producto,
+                        me.producto=data.nombreProd;
                         me.cantidadS=0;
                         me.descripcion=data.descripcion;
                         me.fecha=data.fecha;
@@ -561,13 +561,14 @@
                 let me =this;
                 let suma = me.cantidadProductoLineaIngreso-me.cantidadS
                 axios.put('/ajustes-negativo/actualizar',{
+
                     'id': me.idAjusteNegativos,
                    'id_tipo':me.TiposSeleccionado,
                    'id_producto_linea':me.ProductoLineaIngresoSeleccionado,
                   'codigo':me.codigo,
                    'linea':me.linea,
                   'producto':me.producto,
-                  'cantidad':me.suma,
+                  'cantidad':suma,
                    'descripcion':me.descripcion,
                   'fecha':me.fecha,                  
                   'id_sucursal':me.id_sucursal,

@@ -347,19 +347,20 @@ class InvAjusteNegativoController extends Controller
        // ->orderby('id')
        // ->get();
  
-        $sucursales = DB::table('tda__tiendas')
-            ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal')
-         ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id')
-        ->unionAll(
-            DB::table('alm__almacens as aa')
-                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-                ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal')
-        )->get();
+       $tiendas = DB::table('tda__tiendas')
+    ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal', DB::raw('"Almacen" as tipoCodigo'))
+    ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
+
+$almacenes = DB::table('alm__almacens as aa')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+    ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', DB::raw('"Tienda" as tipoCodigo'));
+
+$result = $tiendas->unionAll($almacenes)->get();
 
 
         $jsonSucrusal = [];
 
-foreach ($sucursales as $key=>$sucursal) {
+foreach ($result as $key=>$sucursal) {
     $elemento = [
         'id' => $key,
         'id_tienda' => $sucursal->id_tienda,
@@ -367,6 +368,7 @@ foreach ($sucursales as $key=>$sucursal) {
         'codigo' => $sucursal->codigo,
         'razon_social' => $sucursal->razon_social,
         'sucursal' => $sucursal->sucursal,
+        'tipoCodigo' =>$sucursal->tipoCodigo,
     ];
 
     $jsonSucrusal[] = $elemento;
@@ -432,12 +434,12 @@ foreach ($sucursales as $key=>$sucursal) {
         ->first();
         if ($almacenIngreso) {
             $activador=1;  
-            $id = $almacenIngreso->id;
+            $id_i = $almacenIngreso->id;
             $codigo = $almacenIngreso->codigo;          
         } else {
             if ($tinedaIngreso) {
                 $activador=2; 
-                $id = $tinedaIngreso->id;
+                $id_i = $tinedaIngreso->id;
                 $codigo = $tinedaIngreso->codigo;
             } else {
                 $activador=0; 
@@ -447,22 +449,22 @@ foreach ($sucursales as $key=>$sucursal) {
         if ($activador==1) {
             $updateAjusteNegativo=Inv_AjusteNegativo::find($request->id);
             $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
-            $updateAjusteNegativo->id_tipo=$request->id_tipo;
-           $updateAjusteNegativo->linea=$request->id_producto_linea;
+            $updateAjusteNegativo->usuario = auth()->user()->name;
+           $updateAjusteNegativo->id_tipo=$request->id_tipo;
+           $updateAjusteNegativo->id_producto_linea=$request->id_producto_linea;
            $updateAjusteNegativo->codigo=$request->codigo;
-            $updateAjusteNegativo->linea=$request->linea;
-            $updateAjusteNegativo->producto=$request->producto;
-            $updateAjusteNegativo->cantidad=$request->cantidad;
-           
-            $updateAjusteNegativo->descripcion=$request->descripcion;
+           $updateAjusteNegativo->linea=$request->linea;
+          $updateAjusteNegativo->producto=$request->producto;
+            $updateAjusteNegativo->cantidad=$request->cantidad;           
+           $updateAjusteNegativo->descripcion=$request->descripcion;
             $updateAjusteNegativo->fecha=$request->fecha;
-            $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
-            $updateAjusteNegativo->cod=$request->cod;
-            $updateAjusteNegativo->id_ingreso=$request->id_ingreso;
-            $update=Alm_IngresoProducto::find($id);
+           $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
+            $updateAjusteNegativo->cod=$codigo;
+            $updateAjusteNegativo->id_ingreso=$id_i;
+            $update=Alm_IngresoProducto::find($id_i);
             $update->cantidad=$request->cantidad;
             $update->stock_ingreso=$request->cantidad;
-            $update->save();
+           $update->save();
            $updateAjusteNegativo->save();
            
         
@@ -470,25 +472,26 @@ foreach ($sucursales as $key=>$sucursal) {
             if ($activador==2) {
                 $updateAjusteNegativo=Inv_AjusteNegativo::find($request->id);
                 $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
-                $updateAjusteNegativo->id_tipo=$request->id_tipo;
-               $updateAjusteNegativo->linea=$request->id_producto_linea;
-               $updateAjusteNegativo->codigo=$request->codigo;
-                $updateAjusteNegativo->linea=$request->linea;
-                $updateAjusteNegativo->producto=$request->producto;
-                $updateAjusteNegativo->cantidad=$request->cantidad;
-               
-                $updateAjusteNegativo->descripcion=$request->descripcion;
-                $updateAjusteNegativo->fecha=$request->fecha;
-                $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
-                $updateAjusteNegativo->cod=$request->cod;
-                $updateAjusteNegativo->id_ingreso=$request->id_ingreso;
-                $update=Tda_IngresoProducto::find($id);
+            $updateAjusteNegativo->usuario = auth()->user()->name;
+           $updateAjusteNegativo->id_tipo=$request->id_tipo;
+           $updateAjusteNegativo->id_producto_linea=$request->id_producto_linea;
+           $updateAjusteNegativo->codigo=$request->codigo;
+           $updateAjusteNegativo->linea=$request->linea;
+          $updateAjusteNegativo->producto=$request->producto;
+            $updateAjusteNegativo->cantidad=$request->cantidad;           
+           $updateAjusteNegativo->descripcion=$request->descripcion;
+            $updateAjusteNegativo->fecha=$request->fecha;
+           $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
+            $updateAjusteNegativo->cod=$codigo;
+            $updateAjusteNegativo->id_ingreso=$id_i;
+                $update=Tda_IngresoProducto::find($id_i);
                 $update->cantidad=$request->cantidad;
                 $update->stock_ingreso=$request->cantidad;
                 $update->save();
                $updateAjusteNegativo->save();
             } else {
-                dd("error");
+                echo "error..";
+                
             }
         }
         

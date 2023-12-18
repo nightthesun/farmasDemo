@@ -16,6 +16,7 @@ use App\Http\Controllers\AdmUserController;
 use App\Http\Controllers\AdmUserRoleSucursalController;
 use App\Http\Controllers\AdmVentanaModuloController;
 use App\Http\Controllers\InvAjusteNegativoController;
+use App\Http\Controllers\InvAjustePositivoController;
 use App\Http\Controllers\AlmAlmacenController;
 use App\Http\Controllers\AlmCodificacionController;
 use App\Http\Controllers\AlmIngresoProductoController;
@@ -358,14 +359,14 @@ Route::group(['middleware'=>'auth'],function(){
     Route::put('/ajustes-negativo/activar', [InvAjusteNegativoController::class,'activar']);
     Route::get('/ajustes-negativo/listarSucursal', [InvAjusteNegativoController::class,'listarSucursal']); 
     
-    Route::get('/ajustes-positivo',[InvAjusteNegativoController::class,'index']);
-    Route::get('/ajustes-positivo/listarTipo',[InvAjusteNegativoController::class,'listarTipo']);
-    Route::get('/ajustes-positivo/listarProductoLineaIngreso',[InvAjusteNegativoController::class,'listarProductoLineaIngreso']);
-    Route::post('/ajustes-positivo/registrar', [InvAjusteNegativoController::class,'store']);
-    Route::put('/ajustes-positivo/actualizar', [InvAjusteNegativoController::class,'update']);
-    Route::put('/ajustes-positivo/desactivar', [InvAjusteNegativoController::class,'desactivar']);
-    Route::put('/ajustes-positivo/activar', [InvAjusteNegativoController::class,'activar']);
-    Route::get('/ajustes-positivo/listarSucursal', [InvAjusteNegativoController::class,'listarSucursal']);
+    Route::get('/ajustes-positivo',[InvAjustePositivoController::class,'index']);
+    Route::get('/ajustes-positivo/listarTipo',[InvAjustePositivoController::class,'listarTipo']);
+    Route::get('/ajustes-positivo/listarProductoLineaIngreso',[InvAjustePositivoController::class,'listarProductoLineaIngreso']);
+    Route::post('/ajustes-positivo/registrar', [InvAjustePositivoController::class,'store']);
+    Route::put('/ajustes-positivo/actualizar', [InvAjustePositivoController::class,'update']);
+    Route::put('/ajustes-positivo/desactivar', [InvAjustePositivoController::class,'desactivar']);
+    Route::put('/ajustes-positivo/activar', [InvAjustePositivoController::class,'activar']);
+    Route::get('/ajustes-positivo/listarSucursal', [InvAjustePositivoController::class,'listarSucursal']);
     //--------prueba-----
     Route::get('/prueba',[PruebaDelModeloController::class,'index']);
 

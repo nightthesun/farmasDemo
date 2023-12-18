@@ -348,12 +348,12 @@ class InvAjusteNegativoController extends Controller
        // ->get();
  
        $tiendas = DB::table('tda__tiendas')
-    ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal', DB::raw('"Almacen" as tipoCodigo'))
+    ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal', DB::raw('"Tienda" as tipoCodigo'))
     ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
 
 $almacenes = DB::table('alm__almacens as aa')
     ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-    ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', DB::raw('"Tienda" as tipoCodigo'));
+    ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', DB::raw('"Almacen" as tipoCodigo'));
 
 $result = $tiendas->unionAll($almacenes)->get();
 
@@ -416,7 +416,8 @@ foreach ($result as $key=>$sucursal) {
      * Update the specified resource in storage.
      */
     public function update(Request $request, Inv_AjusteNegativo $inv_AjusteNegativo)
-    {$cod=$request->cod;
+    {
+        $cod=$request->cod;
         $id_ingreso=$request->id_ingreso;
         $activador=0;
 
@@ -462,7 +463,7 @@ foreach ($result as $key=>$sucursal) {
             $updateAjusteNegativo->cod=$codigo;
             $updateAjusteNegativo->id_ingreso=$id_i;
             $update=Alm_IngresoProducto::find($id_i);
-            $update->cantidad=$request->cantidad;
+           
             $update->stock_ingreso=$request->cantidad;
            $update->save();
            $updateAjusteNegativo->save();
@@ -485,7 +486,7 @@ foreach ($result as $key=>$sucursal) {
             $updateAjusteNegativo->cod=$codigo;
             $updateAjusteNegativo->id_ingreso=$id_i;
                 $update=Tda_IngresoProducto::find($id_i);
-                $update->cantidad=$request->cantidad;
+             
                 $update->stock_ingreso=$request->cantidad;
                 $update->save();
                $updateAjusteNegativo->save();
@@ -493,8 +494,7 @@ foreach ($result as $key=>$sucursal) {
                 echo "error..";
                 
             }
-        }
-        
+        }        
     }
 
     /**

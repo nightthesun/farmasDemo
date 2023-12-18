@@ -37,12 +37,8 @@
                             </div>
                         </div>
                     </div>
-
-
-                    <!---codigo antiguo-->
-                   
-              <!---------------------------------------------------------------->
-                        <table class="table table-bordered table-striped table-sm table-responsive">
+                  <!---------------------------------------------------------------->
+                    <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th>Opciones</th>
@@ -50,10 +46,12 @@
                                 <th>Codigó</th>
                                 <th>Linea</th>
                                 <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Tipo</th>
-                                <th>Descripción</th>
-                                <th>Fecha</th>
+                                <th>Cantidad de Ingreso</th>
+                                <th>Stock</th>  
+                                <th>Lote</th>                               
+                                <th>Fecha de Ingreso</th>
+                                <th>Fecha de Vencimiento</th>
+                                <th>Tipo</th>    
                                 <th>Estado</th>
                             </tr>
                         </thead>
@@ -78,9 +76,12 @@
                              <td v-text="AjustePositivos.codigo"></td>
                              <td v-text="AjustePositivos.linea"></td>
                              <td v-text="AjustePositivos.nombreProd"></td>
-                             <td v-text="AjustePositivos.cantidad"></td>
+                             <td v-text="AjustePositivos.cantidad_ingreso"></td>
+                             <td v-text="AjustePositivos.stock_ingreso"></td>
+                             <td v-text="AjustePositivos.lote"></td>
+                             <td v-text="AjustePositivos.fecha_ingreso"></td>
+                             <td v-text="AjustePositivos.fecha_vencimiento"></td>
                              <td v-text="AjustePositivos.nombreTipo"></td>
-                             <td v-text="AjustePositivos.descripcion"></td>
                              <td v-text="AjustePositivos.fecha"></td>
                         
                              <td>
@@ -144,15 +145,21 @@
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
                                         <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-D1:'+(ProductoLineaIngreso.cantidad_dispenser_p === null?'': ProductoLineaIngreso.cantidad_dispenser_p)+'-D2:'+(ProductoLineaIngreso.cantidad_dispenser_s === null?'': ProductoLineaIngreso.cantidad_dispenser_s)+'-D3:'+(ProductoLineaIngreso.cantidad_dispenser_t === null?'': ProductoLineaIngreso.cantidad_dispenser_t)+'-'+ProductoLineaIngreso.nombre_farmaceutica_1+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+(ProductoLineaIngreso.fecha_vencimiento === null?'sin registro':ProductoLineaIngreso.fecha_vencimiento)+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
                                     </select>
-                                    <input type="text" v-model="id_codigo" hidden >
-                                    <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
-                                    <input type="text"  v-model="codigo" hidden>
-                                    <input type="text"  v-model="linea" hidden>
-                                    <input type="text"  v-model="producto" hidden>
-                                    <input type="text"  v-model="fecha" hidden>
-                                    <input type="text"  v-model="id_sucursal" hidden>
-                                    <input type="text" v-model="id_producto" hidden>
-                                    <input type="text" v-model="id_ingreso" hidden>
+                                    <input type="text" v-model="id_codigo"  >
+                                    <input type="text"  v-model="codigo" >
+                                    <input type="text"  v-model="linea" >
+                                    <input type="text"  v-model="producto" >
+                                    
+                                    <input type="number" v-model="cantidadProductoLineaIngreso" >
+                                    
+                                    <input type="number" v-model="stock_ingreso" >
+                                    <input type="number" v-model="lote" >
+                                    <input type="text"  v-model="fecha_ingreso" >
+                                    <input type="text"  v-model="fecha_vencimiento" >                                    
+
+                                    <input type="text"  v-model="id_sucursal" >
+                                    <input type="text" v-model="id_producto" >
+                                    <input type="text" v-model="id_ingreso" >
 
                                  
                                      </div>
@@ -180,20 +187,7 @@
                                     <span v-if="TiposSeleccionado==0" class="error">Debe seleccionar una opcion</span>
                                 </div>
                             </div>
-                           <!--
-                                    <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Descripción
-                                        <span v-if="descripcion" class="error">(*)</span>
-                                      </label>
-                                        <div class="col-md-9">
-                                            <textarea v-model="descripcion" class="form-control" id="descripcion" name="descripcion" rows="3" v-on:focus="selectAll"></textarea>
-                                            <span v-if="descripcion===''" class="error">Debe Ingresar la Descripción</span>
-                                      </div>
-                                  </div> 
-                           --> 
-                            
-                            
-                        </div>    
+                          </div>    
                    
                                
  
@@ -246,11 +240,14 @@
                 cantidadS:'',
                 listarTipo:0,
                 cantidadProductoLineaIngreso:'',
-                descripcion:'',
+          
                 codigo:'',
                 linea:'',
                 producto:'',
-                fecha:'',
+                stock_ingreso:'',
+                lote:'',
+                fecha_ingreso:'',
+                fecha_vencimiento:'',
                 id_ingreso:'',
                 id_producto:'',
                 id_codigo:'',
@@ -285,7 +282,10 @@
           this.codigo=productoSeleccionado.codigo_producto;
          this.linea=productoSeleccionado.nombre_linea;
          this.producto=productoSeleccionado.nombre;
-        this.fecha=productoSeleccionado.fecha_ingreso;
+        this.fecha_ingreso=productoSeleccionado.fecha_ingreso;
+        this.fecha_vencimiento=productoSeleccionado.fecha_vencimiento;
+        this.lote=productoSeleccionado.lote;
+        this.stock_ingreso=productoSeleccionado.stock_ingreso;
          this.id_sucursal=productoSeleccionado.id_sucursal;
          this.id_producto=productoSeleccionado.id_producto; 
          this.id_ingreso=productoSeleccionado.id_ingreso;      
@@ -326,7 +326,7 @@
        computed:{
            sicompleto(){
             let me=this;
-            if (me.descripcion!='' && me.TiposSeleccionado!='' && me.cantidadS!='' && me.ProductoLineaIngresoSeleccionado)
+            if (me.TiposSeleccionado!='' && me.cantidadS!='' && me.ProductoLineaIngresoSeleccionado)
                 return true;
                else 
                 return false;    
@@ -457,8 +457,10 @@
                         me.linea='';
                         me.producto='',
                         me.cantidadS='';
-                        me.descripcion='';
-                        me.fecha='';
+                        me.stock_ingreso='',
+                        me.lote='',
+                        me.fecha_ingreso='',
+                        me.fecha_vencimiento='',
                         me.id_sucursal='';
                         me.id_producto='';
                         me.id_ingreso='';
@@ -471,12 +473,15 @@
                             me.tipoAccion=2;
                             me.tituloModal='Actualizacion para Ajuste de negativos en la sucursal: ';
                             me.codigo=data.codigo;
-                            me.cantidadProductoLineaIngreso=data.cantidad;
+                            me.cantidadProductoLineaIngreso=data.cantidad_ingreso;
                         me.linea=data.linea;
                         me.producto=data.nombreProd;
                         me.cantidadS=0;
-                        me.descripcion=data.descripcion;
-                        me.fecha=data.fecha;
+                        me.stock_ingreso=data.stock_ingreso,
+                        me.lote=data.lote,
+                        me.fecha_ingreso=data.fecha_ingreso,
+                        me.fecha_vencimiento=data.fecha_vencimiento,
+                
                        me.idAjustePositivos=data.id;
                        me.id_sucursal=data.id_sucursal;
                         me.id_producto=data.cod;
@@ -507,7 +512,10 @@
                         me.linea='';
                         me.producto='',
                         me.cantidadS='';
-                        me.descripcion='';
+                        me.stock_ingreso='',
+                        me.lote='',
+                        me.fecha_ingreso='',
+                        me.fecha_vencimiento='',
                         me.fecha='';
                         me.id_sucursal='';
                       me.id_ingreso='';
@@ -519,7 +527,7 @@
                 let me =  this;
               let suma = me.cantidadProductoLineaIngreso+me.cantidadS
                
-                if (me.codigo === "" || me.linea  === "" || me.producto ===  "" || me.cantidadS === "" || me.TiposSeleccionado === "" || me.descripcion === "" || me.fecha === "" ) {
+                if (me.codigo === "" || me.linea  === "" || me.producto ===  "" || me.cantidadS === "" || me.TiposSeleccionado === ""  || me.fecha === "" ) {
                     Swal.fire(
                         'No puede ingresar valor nulos  o vacios',
                         'Haga click en Ok',
@@ -533,9 +541,11 @@
                    'codigo':me.codigo,
                    'linea':me.linea,
                    'producto':me.producto,
-                   'cantidad':suma,
-                   'descripcion':me.descripcion,
-                   'fecha':me.fecha,
+                   'cantidad_ingreso':suma,
+                    'stock_ingreso':me.stock_ingreso,        
+                   'fecha_ingreso':me.fecha_ingreso,
+                   'fecha_vencimiento':me.fecha_vencimiento,
+                   'lote':me.lote,
                    'activo':1,
                    'id_sucursal':me.id_sucursal,
                    'id_producto':me.id_producto,
@@ -571,7 +581,7 @@
                    'linea':me.linea,
                   'producto':me.producto,
                   'cantidad':suma,
-                   'descripcion':me.descripcion,
+                
                   'fecha':me.fecha,                  
                   'id_sucursal':me.id_sucursal,
                    'id_ingreso':me.id_ingreso, 

@@ -138,13 +138,17 @@
                                     Producto
                                     <span v-if="ProductoLineaIngreso=='0'"  class="error">(*)</span>
                                 </label>
-                                <div class="col-md-9">
+                                <div class="col-md-7 input-group mb-3">
                                     
                                     <select name="" id="" v-model="ProductoLineaIngresoSeleccionado" class="form-control" @change="cambioDeEstado">
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
                                         <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-D1:'+(ProductoLineaIngreso.cantidad_dispenser_p === null?'': ProductoLineaIngreso.cantidad_dispenser_p)+'-D2:'+(ProductoLineaIngreso.cantidad_dispenser_s === null?'': ProductoLineaIngreso.cantidad_dispenser_s)+'-D3:'+(ProductoLineaIngreso.cantidad_dispenser_t === null?'': ProductoLineaIngreso.cantidad_dispenser_t)+'-'+ProductoLineaIngreso.nombre_farmaceutica_1+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+(ProductoLineaIngreso.fecha_vencimiento === null?'sin registro':ProductoLineaIngreso.fecha_vencimiento)+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
                                     </select>
-                                    <input type="text" v-model="id_codigo" hidden>
+                                    <button class="btn btn-primary" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso')"><i class="fa fa-search" ></i></button>
+                                
+                 
+                            </div>
+                            <input type="text" v-model="id_codigo" hidden>
                                     <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
                                     <input type="text"  v-model="codigo" hidden>
                                     <input type="text"  v-model="linea" hidden>
@@ -153,10 +157,8 @@
                                     <input type="text"  v-model="id_sucursal" hidden>
                                     <input type="text" v-model="id_producto" hidden>
                                     <input type="text" v-model="id_ingreso" hidden>
-
-                                 
-                                     </div>
-                            </div>
+                                </div>
+                                
                                    <div class="form-group row">
                                       <label class="col-md-3 form-control-label" for="text-input">Cantidad 
                                         <span v-if="cantidadS==''" class="error">(*)</span>
@@ -209,6 +211,9 @@
             </div>
         </div>
         <!--fin del modal-->
+
+      
+
     </main>
 </template>
 
@@ -487,7 +492,12 @@
                         me.classModal.openModal('registrar');
                             break;
                         }
-                 
+                    case 'bucarProductoIngreso':
+                    {
+                        me.inputTextBuscarProductoIngresoAlmacen='';
+                        me.opciones3=[];
+                        me.classModal.openModal('staticBackdrop');
+                    }
 
                 }
                 

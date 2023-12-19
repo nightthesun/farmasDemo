@@ -358,6 +358,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::put('/ajustes-negativo/desactivar', [InvAjusteNegativoController::class,'desactivar']);
     Route::put('/ajustes-negativo/activar', [InvAjusteNegativoController::class,'activar']);
     Route::get('/ajustes-negativo/listarSucursal', [InvAjusteNegativoController::class,'listarSucursal']); 
+    Route::get('/ajustes-negativo/retornarProductosIngreso', [InvAjusteNegativoController::class,'retornarProductosIngreso']); 
     
     Route::get('/ajustes-positivo',[InvAjustePositivoController::class,'index']);
     Route::get('/ajustes-positivo/listarTipo',[InvAjustePositivoController::class,'listarTipo']);

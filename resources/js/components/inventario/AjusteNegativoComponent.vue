@@ -144,7 +144,7 @@
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
                                         <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-D1:'+(ProductoLineaIngreso.cantidad_dispenser_p === null?'': ProductoLineaIngreso.cantidad_dispenser_p)+'-D2:'+(ProductoLineaIngreso.cantidad_dispenser_s === null?'': ProductoLineaIngreso.cantidad_dispenser_s)+'-D3:'+(ProductoLineaIngreso.cantidad_dispenser_t === null?'': ProductoLineaIngreso.cantidad_dispenser_t)+'-'+ProductoLineaIngreso.nombre_farmaceutica_1+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+(ProductoLineaIngreso.fecha_vencimiento === null?'sin registro':ProductoLineaIngreso.fecha_vencimiento)+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
                                     </select>
-                                    <button class="btn btn-primary" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso')"><i class="fa fa-search" ></i></button>
+                                    <button class="btn btn-primary" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso');ProductoLineaIngreso();"><i class="fa fa-search" ></i></button>
                                 
                  
                             </div>
@@ -211,8 +211,53 @@
             </div>
         </div>
         <!--fin del modal-->
-
-      
+ <!-- Modal para la busqueda de producto por lote -->
+ <div class="modal fade" id="staticBackdrop" tabindex="-2" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-primary">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Busqueda de Productos</h5>
+                    <button type="button" @click="cerrarModal('staticBackdrop')" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Introduzca el codigo Internacional: </label>
+                            <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" v-model="inputTextBuscarProductoIngreso" v-on:keypress.prevent="buscarProductoPorEnvaseIngresoAlamcen">
+                            
+                            <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                        </div>
+                        <div>
+                            <table class="table table-hover" id="tablaProductosIngreso"  style='height:350px;display:block;overflow:scroll'>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Codigo.</th>
+                                            <th scope="col">Descripcion Prod.</th>
+                                            <th scope="col">Envase</th>
+                                            <th scope="col">Codigo Internacional</th>
+                                       </tr>
+                                    </thead>
+                                    <tbody>  
+                                        <tr v-for="ProductoLineaIngreso  in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id">
+                                        <td v-text="ProductoLineaIngreso.cod"></td>
+                                        <td v-text="ProductoLineaIngreso.codigointernacional"></td>
+                                        <td v-text="ProductoLineaIngreso.envase"></td>
+                                        <td v-text="ProductoLineaIngreso.codigointernacional"></td>
+                                      </tr>
+                                    </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop')">Close</button>
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                </div>
+                </div>
+            </div>
+     </div>
+        <!-- Fun Modal para la busqueda de producto por lote -->
+  
 
     </main>
 </template>
@@ -268,7 +313,30 @@
                 sucuralName:'',
                 sucursalId:0,
 
-             
+              //////qrcode
+              value: 'https://example.com',
+                size: 120,
+                productosenvaseprimario:[],
+                productosenvasesecundario:[],
+                productosenvaseterciario:[],
+                arrayIngresoProducto:[],
+                arrayLineasMarca:[],
+                arrayFormaUnidadMedida:[],
+                arrayEnvaseEmbalaje:[],
+                arrayRubro:[],
+                arrayTipoEntradaProductos:[],
+                arrayUsuario:[],
+                opciones:'<option value="0" disabled>Seleccionar...</option>',
+                opciones2:[],
+                opciones3:[],
+                envaseProductoSelecionadoIngresoAlmacen:'',
+                inputTextBuscarProductoIngreso:'',
+                idproductoRealSeleccionado:0,
+                idalmingresoproducto:0,
+                almacenRubroareamedica:0,
+
+                inputBuscar:'',
+                arrayIngresoAlmacen_tienda:[],
 
             }
         },
@@ -494,7 +562,8 @@
                         }
                     case 'bucarProductoIngreso':
                     {
-                        me.inputTextBuscarProductoIngresoAlmacen='';
+
+                        me.input='';
                         me.opciones3=[];
                         me.classModal.openModal('staticBackdrop');
                     }
@@ -624,6 +693,20 @@
                     error401(error);
                });             
             },
+//para listar db  la consulta ingreso almacen y ingreso producto
+listarConsulta(){
+                let me=this;
+                var url='/ajustes-negativo/retornarProductosIngreso';
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;
+                    me.arrayIngresoAlmacen_tienda=respuesta;
+                    console.log( me.arrayTipos);
+                })
+                .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+            },
 
             eliminarAjusteNegativos(idAjusteNegativos){
                 let me=this;
@@ -672,7 +755,22 @@
                 }
                 })
             },
-            
+            buscarProductoPorEnvaseIngresoAlamcen(ex){
+                let me = this;
+                me.opciones3=[];
+                //console.log("keypress: "+ex.keyCode+"---"+ex.key);
+                if(ex.keyCode==32 || ex.keyCode==8 || ex.keyCode == 45 || (ex.keyCode >= 48 && ex.keyCode <= 57) )
+                {
+                    me.inputTextBuscarProductoIngreso = me.inputTextBuscarProductoIngreso+ex.key;
+                    me.opciones2.forEach(element => {
+                       if(element.codigointernacional.includes(me.inputTextBuscarProductoIngreso))
+                       {
+                         me.opciones3.push(element);
+                       }
+                    });
+                    
+                } 
+            },
             activarAjusteNegativos(idAjusteNegativos){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
@@ -725,16 +823,42 @@
                 }, 0)
             },
 
+
+            itemSeleccionadoEnLaBusqueda(idproducto, idprodproductoreal, envase){
+                let me = this;
+                me.idproductoselected = idproducto;
+                me.idproductoRealSeleccionado = idprodproductoreal;
+                me.envaseProductoSelecionadoIngresoAlmacen = envase;
+                var url = `/producto/retornarProductosIngreso?idproducto=${this.idproductoRealSeleccionado}&respuesta0=${this.sucursalSeleccionada}`;
+
+                    axios.get(url).then(function (response) {
+                        var respuesta= response.data; 
+                        me.productoperecedero = respuesta[0].areamedica;
+                        if(respuesta[0].areamedica == 1)
+                        {
+                            me.registrosanitario = '';
+                            me.fecha_vencimiento = '';
+                        }
+                    })
+                    .catch(function (error) {
+                        error401(error);    
+                        console.log(error);
+                    });
+                me.cerrarModal('staticBackdrop');
+            },
+
+
+
        },
   
        mounted() {
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');
         this.listarAjusteNegativos(1);
-        this.ajustesNegativos();
-      
+        this.ajustesNegativos();      
         this.cambiodeEstado();
         this.sucursalFiltro();
+        this.classModal.addModal('staticBackdrop');
        
         
        }

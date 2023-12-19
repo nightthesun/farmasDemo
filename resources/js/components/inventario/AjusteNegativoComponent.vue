@@ -74,7 +74,7 @@
                                  </button>
                               
                              </td>
-                             <td v-text="AjusteNegativos.nombre_usuario"></td>
+                             <td v-text="AjusteNegativos.nombre_usuario "></td>
                              <td v-text="AjusteNegativos.codigo"></td>
                              <td v-text="AjusteNegativos.linea"></td>
                              <td v-text="AjusteNegativos.nombreProd"></td>
@@ -144,19 +144,19 @@
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
                                         <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-D1:'+(ProductoLineaIngreso.cantidad_dispenser_p === null?'': ProductoLineaIngreso.cantidad_dispenser_p)+'-D2:'+(ProductoLineaIngreso.cantidad_dispenser_s === null?'': ProductoLineaIngreso.cantidad_dispenser_s)+'-D3:'+(ProductoLineaIngreso.cantidad_dispenser_t === null?'': ProductoLineaIngreso.cantidad_dispenser_t)+'-'+ProductoLineaIngreso.nombre_farmaceutica_1+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+(ProductoLineaIngreso.fecha_vencimiento === null?'sin registro':ProductoLineaIngreso.fecha_vencimiento)+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
                                     </select>
-                                    <button class="btn btn-primary" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso');ProductoLineaIngreso();"><i class="fa fa-search" ></i></button>
+                                    <button class="btn btn-primary" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso');ListarretornarProductosIngreso();"><i class="fa fa-search" ></i></button>
                                 
                  
                             </div>
-                            <input type="text" v-model="id_codigo" hidden>
-                                    <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
-                                    <input type="text"  v-model="codigo" hidden>
-                                    <input type="text"  v-model="linea" hidden>
-                                    <input type="text"  v-model="producto" hidden>
-                                    <input type="text"  v-model="fecha" hidden>
-                                    <input type="text"  v-model="id_sucursal" hidden>
-                                    <input type="text" v-model="id_producto" hidden>
-                                    <input type="text" v-model="id_ingreso" hidden>
+                            <input type="text" v-model="id_codigo" >
+                                    <input type="number"  v-model="cantidadProductoLineaIngreso">
+                                    <input type="text"  v-model="codigo">
+                                    <input type="text"  v-model="linea">
+                                    <input type="text"  v-model="producto">
+                                    <input type="text"  v-model="fecha">
+                                    <input type="text"  v-model="id_sucursal">
+                                    <input type="text" v-model="id_producto">
+                                    <input type="text" v-model="id_ingreso">
                                 </div>
                                 
                                    <div class="form-group row">
@@ -223,26 +223,25 @@
                     <form>
                         <div class="mb-3">
                             <label for="exampleInputEmail1" class="form-label">Introduzca el codigo Internacional: </label>
-                            <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" v-model="inputTextBuscarProductoIngreso" v-on:keypress.prevent="buscarProductoPorEnvaseIngresoAlamcen">
-                            
+                            <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="inputTextBuscarProductoIngreso"   @input="ListarretornarProductosIngreso()">
                             <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
                         </div>
                         <div>
                             <table class="table table-hover" id="tablaProductosIngreso"  style='height:350px;display:block;overflow:scroll'>
                                     <thead>
                                         <tr>
-                                            <th scope="col">Codigo.</th>
+                                            <th scope="col">Id Ingreso.</th>
                                             <th scope="col">Descripcion Prod.</th>
                                             <th scope="col">Envase</th>
                                             <th scope="col">Codigo Internacional</th>
                                        </tr>
                                     </thead>
                                     <tbody>  
-                                        <tr v-for="ProductoLineaIngreso  in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id">
-                                        <td v-text="ProductoLineaIngreso.cod"></td>
-                                        <td v-text="ProductoLineaIngreso.codigointernacional"></td>
-                                        <td v-text="ProductoLineaIngreso.envase"></td>
-                                        <td v-text="ProductoLineaIngreso.codigointernacional"></td>
+                                        <tr v-for="RetornarProductosIngreso  in arrayRetornarProductosIngreso" :key="RetornarProductosIngreso.id_ingreso" @click="abrirModal('inputModal',RetornarProductosIngreso);ListarretornarProductosIngreso();" >
+                                        <td v-text="RetornarProductosIngreso.id_ingreso"></td>
+                                        <td v-text="RetornarProductosIngreso.nombre+' '+RetornarProductosIngreso.codigo_producto+' '+RetornarProductosIngreso.nombre_linea+' '+RetornarProductosIngreso.nombre_dispenser_1"></td>
+                                        <td v-text="RetornarProductosIngreso.envase"></td>
+                                        <td v-text="RetornarProductosIngreso.codigointernacional"></td>
                                       </tr>
                                     </tbody>
                             </table>
@@ -335,8 +334,8 @@
                 idalmingresoproducto:0,
                 almacenRubroareamedica:0,
 
-                inputBuscar:'',
-                arrayIngresoAlmacen_tienda:[],
+                inputTextBuscarProductoIngreso:'',
+                arrayRetornarProductosIngreso:[],
 
             }
         },
@@ -496,6 +495,29 @@
                     console.log(error);
                 });
             },
+
+            ListarretornarProductosIngreso(){
+                let me=this;
+                if(me.tipoAccion==1){
+                    var url='/ajustes-negativo/retornarProductosIngreso?respuesta0=' +this.sucursalSeleccionada + '&respuesta1=' +me.inputTextBuscarProductoIngreso;
+                 }
+                 if (me.tipoAccion==2) {
+                    var url='/ajustes-negativo/retornarProductosIngreso?respuesta0=' +this.id_codigo+ '&respuesta1=' +me.inputTextBuscarProductoIngres;
+                 
+                 }
+                
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;
+                    
+                    me.arrayRetornarProductosIngreso=respuesta;
+        
+                    console.log( me.arrayRetornarProductosIngreso);
+                })
+                .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+            },
           
 
         cambiarPagina(page){
@@ -564,8 +586,30 @@
                     {
 
                         me.input='';
-                        me.opciones3=[];
+                        me.arrayRetornarProductosIngreso=[];
                         me.classModal.openModal('staticBackdrop');
+                    }
+                    case 'inputModal':{
+                        me.id_codigo=me.sucursalSeleccionada;
+                       // me.id_codigo=data.cod; 
+                            me.tipoAccion=1;
+                        me.tituloModal='Rejistro para Ajuste de negativos en la sucursal: '+respuesta.razon_social;
+                        me. ProductoLineaIngresoSeleccionado=data.id_ingreso===null?0:data.id_ingreso;
+                        
+                        me.cantidadProductoLineaIngreso=''; 
+                        me.TiposSeleccionado=0; 
+                    
+                        me.codigo='';
+                        me.linea='';
+                        me.producto='',
+                        me.cantidadS='';
+                        me.descripcion='';
+                        me.fecha='';
+                        me.id_sucursal='';
+                        me.id_producto='';
+                        me.id_ingreso='';
+                        me.classModal.openModal('registrar');
+                        break;
                     }
 
                 }
@@ -755,22 +799,7 @@ listarConsulta(){
                 }
                 })
             },
-            buscarProductoPorEnvaseIngresoAlamcen(ex){
-                let me = this;
-                me.opciones3=[];
-                //console.log("keypress: "+ex.keyCode+"---"+ex.key);
-                if(ex.keyCode==32 || ex.keyCode==8 || ex.keyCode == 45 || (ex.keyCode >= 48 && ex.keyCode <= 57) )
-                {
-                    me.inputTextBuscarProductoIngreso = me.inputTextBuscarProductoIngreso+ex.key;
-                    me.opciones2.forEach(element => {
-                       if(element.codigointernacional.includes(me.inputTextBuscarProductoIngreso))
-                       {
-                         me.opciones3.push(element);
-                       }
-                    });
-                    
-                } 
-            },
+         
             activarAjusteNegativos(idAjusteNegativos){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
@@ -824,28 +853,7 @@ listarConsulta(){
             },
 
 
-            itemSeleccionadoEnLaBusqueda(idproducto, idprodproductoreal, envase){
-                let me = this;
-                me.idproductoselected = idproducto;
-                me.idproductoRealSeleccionado = idprodproductoreal;
-                me.envaseProductoSelecionadoIngresoAlmacen = envase;
-                var url = `/producto/retornarProductosIngreso?idproducto=${this.idproductoRealSeleccionado}&respuesta0=${this.sucursalSeleccionada}`;
-
-                    axios.get(url).then(function (response) {
-                        var respuesta= response.data; 
-                        me.productoperecedero = respuesta[0].areamedica;
-                        if(respuesta[0].areamedica == 1)
-                        {
-                            me.registrosanitario = '';
-                            me.fecha_vencimiento = '';
-                        }
-                    })
-                    .catch(function (error) {
-                        error401(error);    
-                        console.log(error);
-                    });
-                me.cerrarModal('staticBackdrop');
-            },
+         
 
 
 
